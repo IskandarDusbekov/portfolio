@@ -1,4 +1,3 @@
-import random
 import time
 
 from django.core.paginator import Paginator
@@ -64,8 +63,9 @@ def blog(request):
         if selected_category:
             posts_qs = posts_qs.filter(category=selected_category)
 
-    latest_pool = list(posts_qs.order_by("-published_at")[:5])
-    featured_post = random.choice(latest_pool) if latest_pool else None
+    featured_post = posts_qs.filter(is_featured=True).order_by("-published_at", "-id").first()
+    if not featured_post:
+        featured_post = posts_qs.order_by("-published_at", "-id").first()
     listing_qs = posts_qs.exclude(pk=featured_post.pk) if featured_post else posts_qs
 
     paginator = Paginator(listing_qs, 6)
