@@ -24,9 +24,11 @@
     .marquee-content i { margin-right: 6px; color: var(--accent); }
     #work { position: relative; margin: 1rem 0 3rem; padding: 1.5rem 1.2rem 1.2rem; border-radius: 28px; background: linear-gradient(140deg, rgba(59,130,246,.10), rgba(59,130,246,.03) 35%, transparent 75%); border: 1px solid var(--border-color); }
     #work::before { content: ''; position: absolute; width: 220px; height: 220px; right: -50px; top: -50px; background: radial-gradient(circle, rgba(59,130,246,.18), transparent 65%); pointer-events: none; }
-    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; margin: 1.2rem 0 .6rem; }
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.4rem; margin: 1.2rem 0 .6rem; }
     .project-card { background: var(--bg-card); border-radius: 20px; padding: 1.4rem; border: 1px solid var(--border-color); transition: .3s; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-height: 280px; }
     .project-card:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: var(--shadow-md); }
+    .project-card.is-hidden { display: none; }
+    .project-card.is-entering { animation: projectFadeUp .35s ease both; }
     .project-card-head { display: flex; align-items: center; gap: .8rem; margin-bottom: .8rem; }
     .card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--accent); background: var(--accent-light); flex-shrink: 0; }
     .project-card h3 { font-size: 1.1rem; margin: 0; line-height: 1.35; color: var(--text-primary); }
@@ -45,6 +47,27 @@
     .project-close:hover { color: var(--accent); border-color: var(--accent); }
     .project-modal-meta { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
     .project-modal-body { color: var(--text-secondary); line-height: 1.7; white-space: pre-line; }
+    .projects-pagination { display: flex; align-items: center; justify-content: center; gap: .55rem; margin: 1rem 0 .2rem; flex-wrap: wrap; }
+    .projects-page-btn {
+        min-width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        font-size: .82rem;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 0 .8rem;
+        transition: .2s;
+    }
+    .projects-page-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .projects-page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .projects-page-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    @keyframes projectFadeUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     .about-wrap { display: flex; flex-wrap: wrap; gap: 3rem; justify-content: space-between; margin: 3rem 0; background: var(--bg-secondary); border-radius: 32px; padding: 2.5rem; border: 1px solid var(--border-color); }
     .about-text { flex: 1.5; }
     .about-text h2 { font-size: 1.8rem; margin-bottom: 1rem; }
@@ -140,6 +163,7 @@
             <p class="project-meta">No projects yet. Add projects from admin panel.</p>
         {% endfor %}
     </div>
+    <div class="projects-pagination" id="projectsPagination"></div>
 </section>
 <div id="projectModal" class="project-modal" aria-hidden="true">
     <div class="project-modal-card">
@@ -213,6 +237,9 @@
     const projectModalTags = document.getElementById('projectModalTags');
     const projectModalBody = document.getElementById('projectModalBody');
     const projectModalClose = document.getElementById('projectModalClose');
+    const projectsPagination = document.getElementById('projectsPagination');
+    const projectsPerPage = 6;
+    let currentProjectsPage = 1;
 
     function openProjectModal(projectCard) {
         if (!projectModal) return;
@@ -253,6 +280,54 @@
         }, stepTime);
     }
 
+    function renderProjectsPagination(totalPages) {
+        if (!projectsPagination) return;
+        if (totalPages <= 1) {
+            projectsPagination.innerHTML = '';
+            return;
+        }
+
+        let html = `<button class="projects-page-btn" data-nav="prev" ${currentProjectsPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<button class="projects-page-btn ${i === currentProjectsPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        }
+        html += `<button class="projects-page-btn" data-nav="next" ${currentProjectsPage === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+        projectsPagination.innerHTML = html;
+
+        projectsPagination.querySelectorAll('[data-page]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const target = Number(btn.getAttribute('data-page'));
+                if (target !== currentProjectsPage) showProjectsPage(target);
+            });
+        });
+        const prev = projectsPagination.querySelector('[data-nav="prev"]');
+        const next = projectsPagination.querySelector('[data-nav="next"]');
+        if (prev) prev.addEventListener('click', () => showProjectsPage(currentProjectsPage - 1));
+        if (next) next.addEventListener('click', () => showProjectsPage(currentProjectsPage + 1));
+    }
+
+    function showProjectsPage(pageNumber) {
+        const cards = Array.from(projectCards);
+        const totalPages = Math.ceil(cards.length / projectsPerPage) || 1;
+        if (pageNumber < 1 || pageNumber > totalPages) return;
+
+        currentProjectsPage = pageNumber;
+        const startIndex = (currentProjectsPage - 1) * projectsPerPage;
+        const endIndex = startIndex + projectsPerPage;
+
+        cards.forEach((card, index) => {
+            card.classList.remove('is-entering');
+            if (index >= startIndex && index < endIndex) {
+                card.classList.remove('is-hidden');
+                card.classList.add('is-entering');
+            } else {
+                card.classList.add('is-hidden');
+            }
+        });
+
+        renderProjectsPagination(totalPages);
+    }
+
     projectCards.forEach((card) => {
         card.addEventListener('click', (event) => {
             if (event.target.closest('.project-detail-btn') || event.target.closest('.project-card')) {
@@ -260,6 +335,7 @@
             }
         });
     });
+    showProjectsPage(1);
 
     const projectCountSpan = document.getElementById('projectCount');
     const expYearsSpan = document.getElementById('expYears');
