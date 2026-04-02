@@ -1,0 +1,119 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .blog-header { padding: 3rem 0 2rem; text-align: center; }
+    .blog-header h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, var(--text-primary), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .blog-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .category-filter { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin: 2rem 0; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+    .category-btn { text-decoration: none; border: 1px solid var(--border-color); padding: .5rem 1.2rem; border-radius: 40px; font-size: .85rem; font-weight: 600; color: var(--text-secondary); background: transparent; }
+    .category-btn:hover, .category-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .featured-post { margin: 1.5rem 0 3rem; background: var(--bg-card); border-radius: 28px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
+    .featured-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    .featured-image { width: 100%; min-height: 310px; object-fit: cover; }
+    .featured-content { padding: 2rem; }
+    .featured-badge { display: inline-block; background: var(--accent); color: #fff; font-size: .72rem; font-weight: 700; border-radius: 99px; padding: .25rem .8rem; margin-bottom: .9rem; }
+    .featured-content h2 { font-size: 1.8rem; line-height: 1.35; margin-bottom: .8rem; }
+    .featured-meta { display: flex; gap: 1rem; flex-wrap: wrap; color: var(--text-muted); font-size: .8rem; margin-bottom: .9rem; }
+    .featured-content p { color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem; }
+    .read-more-btn { text-decoration: none; color: var(--accent); font-weight: 700; }
+
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.4rem; margin: 1rem 0 2rem; }
+    .blog-card { text-decoration: none; color: inherit; background: var(--bg-card); border-radius: 18px; overflow: hidden; border: 1px solid var(--border-color); transition: .2s; box-shadow: var(--shadow-sm); }
+    .blog-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--shadow-md); }
+    .blog-image { width: 100%; height: 190px; object-fit: cover; background: var(--bg-secondary); }
+    .blog-content { padding: 1rem; }
+    .blog-category { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: .7rem; font-weight: 700; border-radius: 99px; padding: .25rem .75rem; margin-bottom: .6rem; }
+    .blog-card h3 { font-size: 1.08rem; line-height: 1.4; margin-bottom: .5rem; }
+    .blog-short-desc { color: var(--text-secondary); font-size: .88rem; line-height: 1.55; margin-bottom: .8rem; }
+    .blog-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: .75rem; border-top: 1px solid var(--border-color); padding-top: .7rem; }
+
+    .pagination { display: flex; justify-content: center; gap: .5rem; margin: 2.4rem 0 1rem; flex-wrap: wrap; }
+    .page-btn { text-decoration: none; min-width: 38px; text-align: center; padding: .5rem .75rem; border: 1px solid var(--border-color); border-radius: 999px; color: var(--text-secondary); background: var(--bg-card); font-weight: 600; font-size: .85rem; }
+    .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .empty-state { text-align: center; color: var(--text-muted); margin: 2rem 0; }
+
+    @media (max-width: 768px) {
+        .blog-header h1 { font-size: 2rem; }
+        .featured-grid { grid-template-columns: 1fr; }
+        .featured-image { min-height: 220px; }
+    }
+</style>
+
+<div class="blog-header fade-up">
+    <h1>Backend <span style="color: var(--accent)">Insights</span></h1>
+    <p>Deep dives into architecture, API design, scalability, and practical backend engineering case studies.</p>
+</div>
+
+<div class="category-filter fade-up">
+    <a class="category-btn {% if not selected_category_slug %}active{% endif %}" href="{% url 'blog' %}">All Posts</a>
+    {% for category in categories %}
+        <a class="category-btn {% if selected_category_slug == category.slug %}active{% endif %}" href="{% url 'blog' %}?category={{ category.slug }}">{{ category.name }}</a>
+    {% endfor %}
+</div>
+
+{% if featured_post %}
+<div class="featured-post fade-up">
+    <div class="featured-grid">
+        <img class="featured-image" src="{{ featured_post.cover_image_url|default:'https://picsum.photos/seed/backend/900/550' }}" alt="{{ featured_post.title }}" />
+        <div class="featured-content">
+            <span class="featured-badge"><i class="fas fa-star"></i> Featured</span>
+            <h2>{{ featured_post.title }}</h2>
+            <div class="featured-meta">
+                <span><i class="far fa-calendar-alt"></i> {{ featured_post.published_at|date:'F d, Y' }}</span>
+                <span><i class="far fa-clock"></i> {{ featured_post.read_time_label }}</span>
+                <span><i class="far fa-eye"></i> {{ featured_post.views_count }} views</span>
+            </div>
+            <p>{{ featured_post.excerpt }}</p>
+            <a class="read-more-btn" href="{% url 'view_post' featured_post.slug %}">Read full article <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<h2 class="section-title fade-up">Recent Articles</h2>
+
+{% if page_obj.object_list %}
+<div class="blog-grid">
+    {% for post in page_obj.object_list %}
+        <a class="blog-card" href="{% url 'view_post' post.slug %}">
+            <img class="blog-image" src="{{ post.cover_image_url|default:'https://picsum.photos/seed/post/900/550' }}" alt="{{ post.title }}" />
+            <div class="blog-content">
+                <span class="blog-category">{{ post.category.name }}</span>
+                <h3>{{ post.title }}</h3>
+                <p class="blog-short-desc">{{ post.excerpt|truncatechars:120 }}</p>
+                <div class="blog-meta">
+                    <span>{{ post.published_at|date:'M d, Y' }}</span>
+                    <span>{{ post.views_count }} views</span>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% else %}
+    <p class="empty-state">No posts found for this category yet.</p>
+{% endif %}
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a class="page-btn" href="?page={{ page_obj.previous_page_number }}{% if selected_category_slug %}&category={{ selected_category_slug }}{% endif %}"><i class="fas fa-chevron-left"></i></a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+            <a class="page-btn active" href="#">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a class="page-btn" href="?page={{ num }}{% if selected_category_slug %}&category={{ selected_category_slug }}{% endif %}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="page-btn" href="?page={{ page_obj.next_page_number }}{% if selected_category_slug %}&category={{ selected_category_slug }}{% endif %}"><i class="fas fa-chevron-right"></i></a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

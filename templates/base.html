@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>{{ site_profile.full_name|default:'Alex Morgan' }} | Backend Engineer Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #fafcff;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #eef2ff;
+            --accent: #3b82f6;
+            --accent-light: #eef2ff;
+            --accent-dark: #2563eb;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 20px 30px -15px rgba(0, 0, 0, 0.05);
+            --gradient-start: #f8fafc;
+            --gradient-end: #ffffff;
+            --pattern-color: #e2e8f0;
+        }
+        body.dark {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #0f0f14;
+            --bg-card: #14141c;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #6b7280;
+            --border-color: #1e1e2e;
+            --accent: #3b82f6;
+            --accent-light: #1e293b;
+            --accent-dark: #60a5fa;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 20px 30px -15px rgba(0, 0, 0, 0.3);
+            --gradient-start: #0a0a0f;
+            --gradient-end: #0f0f14;
+            --pattern-color: #1e1e2e;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; transition: 0.3s; }
+        .bg-gradient { position: fixed; inset: 0; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); z-index: -2; }
+        .dot-pattern { position: fixed; inset: 0; background-image: radial-gradient(var(--pattern-color) 1px, transparent 1px); background-size: 32px 32px; opacity: .3; z-index: -1; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 2rem 5%; position: relative; z-index: 2; }
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: .8rem 0; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,.95); backdrop-filter: blur(10px); }
+        body.dark nav { background: rgba(10,10,15,.95); }
+        .logo { font-size: 1.6rem; font-weight: 700; letter-spacing: -.5px; color: var(--text-primary); }
+        .logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-secondary); font-weight: 500; font-size: .95rem; }
+        .nav-links a:hover { color: var(--accent); }
+        .theme-toggle { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 40px; padding: .4rem 1rem; cursor: pointer; display: flex; align-items: center; gap: .5rem; font-size: .85rem; color: var(--text-secondary); }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+        .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 2rem; border-left: 4px solid var(--accent); padding-left: 1rem; }
+        .flash-wrap { margin: 1rem 0 0; display: grid; gap: .6rem; }
+        .flash-msg { border: 1px solid var(--border-color); border-left: 4px solid var(--accent); background: var(--bg-card); border-radius: 12px; padding: .75rem 1rem; color: var(--text-primary); font-size: .92rem; }
+        .flash-msg.success { border-left-color: #16a34a; }
+        .flash-msg.error { border-left-color: #dc2626; }
+        .flash-msg.warning { border-left-color: #f59e0b; }
+        .fade-up { opacity: 0; transform: translateY(30px); transition: opacity .6s, transform .6s; }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        footer { text-align: center; padding: 2rem 0; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: .85rem; margin-top: 2rem; }
+        .social-icons { margin-top: 1rem; display: flex; justify-content: center; gap: .9rem; flex-wrap: wrap; }
+        .social-icons a {
+            color: var(--text-muted);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            transition: .2s;
+        }
+        .social-icons a:hover { color: #fff; background: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
+        .floating-icon { position: fixed; bottom: 25px; right: 25px; background: var(--accent); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; z-index: 99; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+        .floating-icon:hover { transform: scale(1.05); background: var(--accent-dark); }
+        @media (max-width: 850px) { .container { padding: 1rem 6%; } .nav-links { gap: 1rem; } }
+        @media (max-width: 550px) { .section-title { font-size: 1.6rem; } .nav-links a { font-size: .85rem; } }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+<div class="dot-pattern"></div>
+<div class="floating-icon" id="backToTop"><i class="fas fa-arrow-up"></i></div>
+
+<div class="container">
+    <nav>
+        <div class="logo">Backend<span>Dev</span></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'index' %}#home">Home</a></li>
+            <li><a href="{% url 'index' %}#work">Projects</a></li>
+            <li><a href="{% url 'index' %}#about">About</a></li>
+            <li><a href="{% url 'index' %}#contact">Contact</a></li>
+            <li><a href="{% url 'blog' %}">Blog</a></li>
+            <li>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    {% if messages %}
+    <div class="flash-wrap">
+        {% for message in messages %}
+            <div class="flash-msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        <p id="footerCopy">&copy; {{ now|default:'' }} {{ site_profile.full_name|default:'Alex Morgan' }} - Backend Developer. Built with precision.</p>
+        <div class="social-icons">
+            {% for item in site_social_links %}
+                <a href="{{ item.url }}" aria-label="{{ item.platform }}"><i class="{{ item.icon_class }}"></i></a>
+            {% empty %}
+                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+            {% endfor %}
+        </div>
+    </footer>
+</div>
+
+<script>
+    const backBtn = document.getElementById('backToTop');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        const text = themeToggle.querySelector('span');
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fas fa-sun';
+                text.textContent = 'Light';
+            } else {
+                document.body.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fas fa-moon';
+                text.textContent = 'Dark';
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setTheme('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            setTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
+        });
+    }
+
+    const fadeElements = document.querySelectorAll('.fade-up');
+    if (fadeElements.length) {
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    fadeObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        fadeElements.forEach(el => fadeObserver.observe(el));
+    }
+
+    const footerCopy = document.getElementById('footerCopy');
+    if (footerCopy) {
+        footerCopy.innerHTML = '&copy; ' + new Date().getFullYear() + ' {{ site_profile.full_name|default:"Alex Morgan" }} - Backend Developer. Built with precision.';
+    }
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

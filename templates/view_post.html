@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .post-wrap { max-width: 960px; margin: 2.5rem auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .post-cover { width: 100%; height: 340px; object-fit: cover; background: var(--bg-secondary); }
+    .post-body { padding: 2rem; }
+    .post-meta { color: var(--text-muted); font-size: .9rem; margin: .8rem 0 1.2rem; }
+    .post-body h1 { font-size: 2rem; line-height: 1.3; margin-bottom: .5rem; }
+    .post-content { color: var(--text-secondary); line-height: 1.8; }
+    .back-link { display: inline-flex; align-items: center; gap: .5rem; color: var(--accent); text-decoration: none; font-weight: 600; margin-bottom: 1rem; }
+    .post-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+    .post-nav a { display: block; text-decoration: none; border: 1px solid var(--border-color); border-radius: 14px; padding: .9rem 1rem; color: var(--text-secondary); background: var(--bg-secondary); }
+    .post-nav a strong { display: block; color: var(--text-primary); margin-top: .2rem; }
+    .related-wrap { max-width: 960px; margin: 1rem auto 0; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .related-card { border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem; background: var(--bg-card); text-decoration: none; color: var(--text-secondary); }
+    .related-card h4 { color: var(--text-primary); margin: .4rem 0; font-size: 1rem; line-height: 1.4; }
+    .related-card span { color: var(--text-muted); font-size: .82rem; }
+    @media (max-width: 700px) { .post-nav { grid-template-columns: 1fr; } }
+</style>
+
+<div class="post-wrap fade-up">
+    {% if post %}
+        <img class="post-cover" src="{{ post.cover_image_url|default:'https://picsum.photos/seed/backend/1000/500' }}" alt="{{ post.title }}" />
+        <div class="post-body">
+            <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> Back to blog</a>
+            <h1>{{ post.title }}</h1>
+            <div class="post-meta">{{ post.category.name }} | {{ post.published_at|date:'F d, Y' }} | {{ post.read_time_label }} | {{ displayed_views_count|default:post.views_count }} views</div>
+            <div class="post-content">{{ post.content|linebreaks }}</div>
+            <div class="post-nav">
+                {% if previous_post %}
+                    <a href="{% url 'view_post' previous_post.slug %}">
+                        <span><i class="fas fa-arrow-left"></i> Previous</span>
+                        <strong>{{ previous_post.title }}</strong>
+                    </a>
+                {% else %}
+                    <a href="{% url 'blog' %}">
+                        <span><i class="fas fa-arrow-left"></i> Previous</span>
+                        <strong>Back to blog list</strong>
+                    </a>
+                {% endif %}
+                {% if next_post %}
+                    <a href="{% url 'view_post' next_post.slug %}" style="text-align:right;">
+                        <span>Next <i class="fas fa-arrow-right"></i></span>
+                        <strong>{{ next_post.title }}</strong>
+                    </a>
+                {% else %}
+                    <a href="{% url 'blog' %}" style="text-align:right;">
+                        <span>Next <i class="fas fa-arrow-right"></i></span>
+                        <strong>Back to blog list</strong>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% elif fallback_post %}
+        <img class="post-cover" src="{{ fallback_post.image }}" alt="{{ fallback_post.title }}" />
+        <div class="post-body">
+            <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> Back to blog</a>
+            <h1>{{ fallback_post.title }}</h1>
+            <div class="post-meta">{{ fallback_post.category }} | {{ fallback_post.date }} | {{ fallback_post.readTime }}</div>
+            <div class="post-content">{{ fallback_post.fullDesc|linebreaks }}</div>
+        </div>
+    {% endif %}
+</div>
+
+{% if post and related_posts %}
+<div class="related-wrap">
+    <h3 class="section-title">Related Posts</h3>
+    <div class="related-grid">
+        {% for item in related_posts %}
+            <a class="related-card" href="{% url 'view_post' item.slug %}">
+                <span>{{ item.category.name }} | {{ item.published_at|date:'M d, Y' }}</span>
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.excerpt|truncatechars:110 }}</p>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
