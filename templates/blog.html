@@ -44,12 +44,12 @@
 </style>
 
 <div class="blog-header fade-up">
-    <h1>Backend <span style="color: var(--accent)">Insights</span></h1>
-    <p>Deep dives into architecture, API design, scalability, and practical backend engineering case studies.</p>
+    <h1>{{ t.blog_title }}</h1>
+    <p>{{ t.blog_subtitle }}</p>
 </div>
 
 <div class="category-filter fade-up">
-    <a class="category-btn {% if not selected_category_slug %}active{% endif %}" href="{% url 'blog' %}">All Posts</a>
+    <a class="category-btn {% if not selected_category_slug %}active{% endif %}" href="{% url 'blog' %}">{{ t.blog_all_posts }}</a>
     {% for category in categories %}
         <a class="category-btn {% if selected_category_slug == category.slug %}active{% endif %}" href="{% url 'blog' %}?category={{ category.slug }}">{{ category.name }}</a>
     {% endfor %}
@@ -60,21 +60,21 @@
     <div class="featured-grid">
         <img class="featured-image" src="{{ featured_post.cover_image_url|default:'https://picsum.photos/seed/backend/900/550' }}" alt="{{ featured_post.title }}" />
         <div class="featured-content">
-            <span class="featured-badge"><i class="fas fa-star"></i> Featured</span>
-            <h2>{{ featured_post.title }}</h2>
+            <span class="featured-badge"><i class="fas fa-star"></i> {{ t.blog_featured }}</span>
+            <h2>{{ featured_post.display_title }}</h2>
             <div class="featured-meta">
                 <span><i class="far fa-calendar-alt"></i> {{ featured_post.published_at|date:'F d, Y' }}</span>
-                <span><i class="far fa-clock"></i> {{ featured_post.read_time_label }}</span>
-                <span><i class="far fa-eye"></i> {{ featured_post.views_count }} views</span>
+                <span><i class="far fa-clock"></i> {{ featured_post.read_time_minutes }} {{ t.min_read }}</span>
+                <span><i class="far fa-eye"></i> {{ featured_post.views_count }} {{ t.views }}</span>
             </div>
-            <p>{{ featured_post.excerpt }}</p>
-            <a class="read-more-btn" href="{% url 'view_post' featured_post.slug %}">Read full article <i class="fas fa-arrow-right"></i></a>
+            <p>{{ featured_post.display_excerpt }}</p>
+            <a class="read-more-btn" href="{% url 'view_post' featured_post.slug %}">{{ t.blog_read_full }} <i class="fas fa-arrow-right"></i></a>
         </div>
     </div>
 </div>
 {% endif %}
 
-<h2 class="section-title fade-up">Recent Articles</h2>
+<h2 class="section-title fade-up">{{ t.blog_recent }}</h2>
 
 {% if page_obj.object_list %}
 <div class="blog-grid">
@@ -83,18 +83,18 @@
             <img class="blog-image" src="{{ post.cover_image_url|default:'https://picsum.photos/seed/post/900/550' }}" alt="{{ post.title }}" />
             <div class="blog-content">
                 <span class="blog-category">{{ post.category.name }}</span>
-                <h3>{{ post.title }}</h3>
-                <p class="blog-short-desc">{{ post.excerpt|truncatechars:120 }}</p>
+                <h3>{{ post.display_title }}</h3>
+                <p class="blog-short-desc">{{ post.display_excerpt|truncatechars:120 }}</p>
                 <div class="blog-meta">
                     <span>{{ post.published_at|date:'M d, Y' }}</span>
-                    <span>{{ post.views_count }} views</span>
+                    <span>{{ post.views_count }} {{ t.views }}</span>
                 </div>
             </div>
         </a>
     {% endfor %}
 </div>
 {% else %}
-    <p class="empty-state">No posts found for this category yet.</p>
+    <p class="empty-state">{{ t.blog_no_posts }}</p>
 {% endif %}
 
 {% if is_paginated %}

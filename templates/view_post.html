@@ -24,31 +24,31 @@
     {% if post %}
         <img class="post-cover" src="{{ post.cover_image_url|default:'https://picsum.photos/seed/backend/1000/500' }}" alt="{{ post.title }}" />
         <div class="post-body">
-            <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> Back to blog</a>
-            <h1>{{ post.title }}</h1>
-            <div class="post-meta">{{ post.category.name }} | {{ post.published_at|date:'F d, Y' }} | {{ post.read_time_label }} | {{ displayed_views_count|default:post.views_count }} views</div>
-            <div class="post-content">{{ post.content|linebreaks }}</div>
+            <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> {{ t.blog_back }}</a>
+            <h1>{{ post.display_title }}</h1>
+            <div class="post-meta">{{ post.category.name }} | {{ post.published_at|date:'F d, Y' }} | {{ post.read_time_minutes }} {{ t.min_read }} | {{ displayed_views_count|default:post.views_count }} {{ t.views }}</div>
+            <div class="post-content">{{ post.display_content|linebreaks }}</div>
             <div class="post-nav">
                 {% if previous_post %}
                     <a href="{% url 'view_post' previous_post.slug %}">
-                        <span><i class="fas fa-arrow-left"></i> Previous</span>
-                        <strong>{{ previous_post.title }}</strong>
+                        <span><i class="fas fa-arrow-left"></i> {{ t.blog_prev }}</span>
+                        <strong>{{ previous_post.display_title }}</strong>
                     </a>
                 {% else %}
                     <a href="{% url 'blog' %}">
-                        <span><i class="fas fa-arrow-left"></i> Previous</span>
-                        <strong>Back to blog list</strong>
+                        <span><i class="fas fa-arrow-left"></i> {{ t.blog_prev }}</span>
+                        <strong>{{ t.blog_back }}</strong>
                     </a>
                 {% endif %}
                 {% if next_post %}
                     <a href="{% url 'view_post' next_post.slug %}" style="text-align:right;">
-                        <span>Next <i class="fas fa-arrow-right"></i></span>
-                        <strong>{{ next_post.title }}</strong>
+                        <span>{{ t.blog_next }} <i class="fas fa-arrow-right"></i></span>
+                        <strong>{{ next_post.display_title }}</strong>
                     </a>
                 {% else %}
                     <a href="{% url 'blog' %}" style="text-align:right;">
-                        <span>Next <i class="fas fa-arrow-right"></i></span>
-                        <strong>Back to blog list</strong>
+                        <span>{{ t.blog_next }} <i class="fas fa-arrow-right"></i></span>
+                        <strong>{{ t.blog_back }}</strong>
                     </a>
                 {% endif %}
             </div>
@@ -56,7 +56,7 @@
     {% elif fallback_post %}
         <img class="post-cover" src="{{ fallback_post.image }}" alt="{{ fallback_post.title }}" />
         <div class="post-body">
-            <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> Back to blog</a>
+            <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> {{ t.blog_back }}</a>
             <h1>{{ fallback_post.title }}</h1>
             <div class="post-meta">{{ fallback_post.category }} | {{ fallback_post.date }} | {{ fallback_post.readTime }}</div>
             <div class="post-content">{{ fallback_post.fullDesc|linebreaks }}</div>
@@ -66,13 +66,13 @@
 
 {% if post and related_posts %}
 <div class="related-wrap">
-    <h3 class="section-title">Related Posts</h3>
+    <h3 class="section-title">{{ t.blog_related }}</h3>
     <div class="related-grid">
         {% for item in related_posts %}
             <a class="related-card" href="{% url 'view_post' item.slug %}">
                 <span>{{ item.category.name }} | {{ item.published_at|date:'M d, Y' }}</span>
-                <h4>{{ item.title }}</h4>
-                <p>{{ item.excerpt|truncatechars:110 }}</p>
+                <h4>{{ item.display_title }}</h4>
+                <p>{{ item.display_excerpt|truncatechars:110 }}</p>
             </a>
         {% endfor %}
     </div>

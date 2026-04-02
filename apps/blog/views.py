@@ -53,6 +53,7 @@ DEFAULT_BLOG_POSTS = [
 
 
 def blog(request):
+    current_lang = getattr(request, "site_lang", "uz")
     categories = BlogCategory.objects.filter(is_active=True)
     selected_category_slug = request.GET.get("category", "").strip()
 
@@ -71,12 +72,20 @@ def blog(request):
     paginator = Paginator(listing_qs, 6)
     page_obj = paginator.get_page(request.GET.get("page"))
 
+    if featured_post:
+        featured_post.display_title = featured_post.get_title(current_lang)
+        featured_post.display_excerpt = featured_post.get_excerpt(current_lang)
+    for post in page_obj.object_list:
+        post.display_title = post.get_title(current_lang)
+        post.display_excerpt = post.get_excerpt(current_lang)
+
     context = {
         "categories": categories,
         "selected_category_slug": selected_category_slug,
         "featured_post": featured_post,
         "page_obj": page_obj,
         "is_paginated": page_obj.has_other_pages(),
+        "current_lang": current_lang,
     }
     return render(request, "blog.html", context)
 
@@ -115,6 +124,7 @@ def _buffered_increment_post_view(request, post):
 
 
 def view_post(request, slug):
+    current_lang = getattr(request, "site_lang", "uz")
     post = BlogPost.objects.filter(is_published=True).select_related("category").filter(slug=slug).first()
     if post:
         displayed_views_count = _buffered_increment_post_view(request, post)
@@ -133,12 +143,22 @@ def view_post(request, slug):
             .order_by("published_at")
             .first()
         )
+        post.display_title = post.get_title(current_lang)
+        post.display_content = post.get_content(current_lang)
+        for item in related_posts:
+            item.display_title = item.get_title(current_lang)
+            item.display_excerpt = item.get_excerpt(current_lang)
+        if previous_post:
+            previous_post.display_title = previous_post.get_title(current_lang)
+        if next_post:
+            next_post.display_title = next_post.get_title(current_lang)
         context = {
             "post": post,
             "related_posts": related_posts,
             "previous_post": previous_post,
             "next_post": next_post,
             "displayed_views_count": displayed_views_count,
+            "current_lang": current_lang,
         }
         return render(request, "view_post.html", context)
 

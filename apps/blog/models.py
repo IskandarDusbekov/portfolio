@@ -24,11 +24,14 @@ class BlogCategory(models.Model):
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)
+    title_en = models.CharField(max_length=200, blank=True)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     category = models.ForeignKey(BlogCategory, on_delete=models.PROTECT, related_name="posts")
     cover_image_url = models.URLField(blank=True)
     excerpt = models.CharField(max_length=320)
+    excerpt_en = models.CharField(max_length=320, blank=True)
     content = models.TextField()
+    content_en = models.TextField(blank=True)
     read_time_minutes = models.PositiveSmallIntegerField(default=5)
     is_featured = models.BooleanField(default=False)
     is_published = models.BooleanField(default=True)
@@ -56,3 +59,18 @@ class BlogPost(models.Model):
     @property
     def read_time_label(self):
         return f"{self.read_time_minutes} min read"
+
+    def get_title(self, lang):
+        if lang == "en" and self.title_en:
+            return self.title_en
+        return self.title
+
+    def get_excerpt(self, lang):
+        if lang == "en" and self.excerpt_en:
+            return self.excerpt_en
+        return self.excerpt
+
+    def get_content(self, lang):
+        if lang == "en" and self.content_en:
+            return self.content_en
+        return self.content

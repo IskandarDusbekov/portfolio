@@ -13,9 +13,38 @@ class BlogCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "views_count", "is_featured", "is_published", "published_at")
+    list_display = ("title", "title_en", "category", "views_count", "is_featured", "is_published", "published_at")
     list_filter = ("is_published", "is_featured", "category")
     list_editable = ("views_count", "is_featured", "is_published")
-    search_fields = ("title", "excerpt", "content")
+    search_fields = ("title", "title_en", "excerpt", "excerpt_en", "content", "content_en")
     prepopulated_fields = {"slug": ("title",)}
     autocomplete_fields = ("category",)
+    fieldsets = (
+        (
+            "Uzbek Content",
+            {
+                "fields": ("title", "excerpt", "content"),
+            },
+        ),
+        (
+            "English Content",
+            {
+                "fields": ("title_en", "excerpt_en", "content_en"),
+            },
+        ),
+        (
+            "Meta",
+            {
+                "fields": (
+                    "slug",
+                    "category",
+                    "cover_image_url",
+                    "read_time_minutes",
+                    "views_count",
+                    "is_featured",
+                    "is_published",
+                    "published_at",
+                ),
+            },
+        ),
+    )
