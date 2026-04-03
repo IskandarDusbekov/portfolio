@@ -17,7 +17,25 @@
     .related-card { border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem; background: var(--bg-card); text-decoration: none; color: var(--text-secondary); }
     .related-card h4 { color: var(--text-primary); margin: .4rem 0; font-size: 1rem; line-height: 1.4; }
     .related-card span { color: var(--text-muted); font-size: .82rem; }
-    @media (max-width: 700px) { .post-nav { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+        .post-wrap { margin: 1.5rem auto; }
+        .post-cover { height: 260px; }
+        .post-body { padding: 1.2rem; }
+        .post-body h1 { font-size: 1.65rem; }
+    }
+    @media (max-width: 700px) {
+        .post-nav { grid-template-columns: 1fr; }
+        .related-grid { grid-template-columns: 1fr; }
+        .post-content { line-height: 1.7; }
+    }
+    @media (max-width: 520px) {
+        .post-wrap { border-radius: 16px; }
+        .post-cover { height: 190px; }
+        .post-body { padding: .95rem; }
+        .post-body h1 { font-size: 1.35rem; }
+        .post-meta { font-size: .8rem; line-height: 1.6; }
+        .post-nav a { padding: .75rem .75rem; }
+    }
 </style>
 
 <div class="post-wrap fade-up">
