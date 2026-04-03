@@ -1,0 +1,107 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <h2 class="section-title">{{ page_title }}</h2>
+  <form method="post" enctype="multipart/form-data" class="form-grid">
+    {% csrf_token %}
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.full_name.id_for_label }}">Full name</label>
+        {{ form.full_name }}
+        {{ form.full_name.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.role.id_for_label }}">Role</label>
+        {{ form.role }}
+        {{ form.role.errors }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.hero_title.id_for_label }}">Hero title</label>
+      {{ form.hero_title }}
+      {{ form.hero_title.errors }}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.hero_description.id_for_label }}">Hero description</label>
+      {{ form.hero_description }}
+      {{ form.hero_description.errors }}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.about_title.id_for_label }}">About title</label>
+      {{ form.about_title }}
+      {{ form.about_title.errors }}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.about_description.id_for_label }}">About description</label>
+      {{ form.about_description }}
+      {{ form.about_description.errors }}
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.location.id_for_label }}">Location</label>
+        {{ form.location }}
+        {{ form.location.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.availability.id_for_label }}">Availability</label>
+        {{ form.availability }}
+        {{ form.availability.errors }}
+      </div>
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.contact_email.id_for_label }}">Contact email</label>
+        {{ form.contact_email }}
+        {{ form.contact_email.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.github_username.id_for_label }}">GitHub username</label>
+        {{ form.github_username }}
+        {{ form.github_username.errors }}
+      </div>
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.years_experience.id_for_label }}">Years experience</label>
+        {{ form.years_experience }}
+        {{ form.years_experience.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.uptime_sla.id_for_label }}">Uptime SLA</label>
+        {{ form.uptime_sla }}
+        {{ form.uptime_sla.errors }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.profile_image.id_for_label }}">Profile image</label>
+      {{ form.profile_image }}
+      {{ form.profile_image.errors }}
+      {% if profile and profile.profile_image %}
+        <p class="help">Current image: {{ profile.profile_image.url }}</p>
+      {% endif %}
+    </div>
+
+    <div class="checkbox-row">
+      {{ form.is_active }}
+      <label for="{{ form.is_active.id_for_label }}">Active profile</label>
+    </div>
+
+    <div class="actions-cell">
+      <button type="submit" class="btn">Save profile</button>
+      <a class="btn btn-ghost" href="{% url 'panel:profile_list' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

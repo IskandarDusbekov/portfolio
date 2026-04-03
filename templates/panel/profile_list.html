@@ -1,0 +1,38 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}Profiles{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Profiles</h2>
+    <a class="btn" href="{% url 'panel:profile_create' %}">+ New profile</a>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Full name</th><th>Role</th><th>Email</th><th>Location</th><th>Active</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for profile in profiles %}
+          <tr>
+            <td>{{ profile.full_name }}</td>
+            <td>{{ profile.role }}</td>
+            <td>{{ profile.contact_email }}</td>
+            <td>{{ profile.location }}</td>
+            <td>{% if profile.is_active %}Yes{% else %}No{% endif %}</td>
+            <td class="actions-cell">
+              <a class="btn btn-sm" href="{% url 'panel:profile_edit' profile.pk %}">Edit</a>
+              <form method="post" action="{% url 'panel:profile_delete' profile.pk %}" onsubmit="return confirm('Delete this profile?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6">No profiles found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
