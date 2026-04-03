@@ -18,6 +18,22 @@
     .btn-primary { background: var(--text-primary); color: var(--bg-primary); }
     .btn-outline { border: 1.5px solid var(--border-color); color: var(--text-primary); background: transparent; }
     .skills-section { margin: 2rem 0 3rem; }
+    .blog-teaser {
+        margin: .4rem 0 2rem;
+        padding: 1rem 1.1rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        background: linear-gradient(120deg, var(--accent-light), var(--bg-card));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .9rem;
+        flex-wrap: wrap;
+    }
+    .blog-teaser-text h3 { font-size: 1rem; margin-bottom: .25rem; }
+    .blog-teaser-text p { color: var(--text-secondary); font-size: .88rem; }
+    .blog-teaser-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+    .blog-teaser .btn { padding: .62rem 1.05rem; font-size: .84rem; }
     .marquee { overflow: hidden; white-space: nowrap; padding: 1.2rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
     .marquee-content { display: inline-block; animation: marquee 22s linear infinite; font-weight: 500; font-size: 1rem; }
     .marquee-content span { margin: 0 1.5rem; color: var(--text-secondary); }
@@ -122,6 +138,7 @@
         .about-wrap { padding: 1.2rem; border-radius: 20px; }
         .contact-form { max-width: 100%; margin: 1.4rem 0 2rem; }
         .contact-form input, .contact-form textarea { padding: .85rem .95rem; border-radius: 12px; }
+        .blog-teaser { padding: .85rem .85rem; border-radius: 14px; }
     }
     @media (max-width: 550px) {
         .hero-content h1 { font-size: 2rem; }
@@ -157,6 +174,17 @@
         </div>
     </div>
 </section>
+
+<div class="blog-teaser fade-up">
+    <div class="blog-teaser-text">
+        <h3><i class="fas fa-bullhorn"></i> {{ t.nav_blog }}: {{ t.blog_recent }}</h3>
+        <p>{{ t.blog_subtitle }}</p>
+    </div>
+    <div class="blog-teaser-actions">
+        <a href="{% url 'blog' %}" class="btn btn-primary"><i class="fas fa-newspaper"></i> {{ t.nav_blog }}</a>
+        <a href="{% url 'blog' %}" class="btn btn-outline"><i class="fas fa-arrow-right"></i> {{ t.blog_read_full }}</a>
+    </div>
+</div>
 
 <div class="skills-section fade-up">
     <div class="marquee">
