@@ -1,0 +1,61 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <h2 class="section-title">{{ page_title }}</h2>
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.title.id_for_label }}">Title</label>
+        {{ form.title }}
+        {{ form.title.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.slug.id_for_label }}">Slug</label>
+        {{ form.slug }}
+        {{ form.slug.errors }}
+      </div>
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.icon_class.id_for_label }}">Icon class</label>
+        {{ form.icon_class }}
+        {{ form.icon_class.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.sort_order.id_for_label }}">Sort order</label>
+        {{ form.sort_order }}
+        {{ form.sort_order.errors }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.tech_stack.id_for_label }}">Tech stack</label>
+      {{ form.tech_stack }}
+      <p class="help">Example: Django, PostgreSQL, Redis</p>
+      {{ form.tech_stack.errors }}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.description.id_for_label }}">Description</label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="checkbox-row">
+      {{ form.is_active }}
+      <label for="{{ form.is_active.id_for_label }}">Active project</label>
+    </div>
+
+    <div class="actions-cell">
+      <button type="submit" class="btn">Save project</button>
+      <a class="btn btn-ghost" href="{% url 'panel:project_list' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
