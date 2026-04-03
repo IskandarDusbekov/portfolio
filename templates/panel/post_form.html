@@ -1,0 +1,99 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <h2 class="section-title">{{ page_title }}</h2>
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+
+    <div class="form-row">
+      <label for="{{ form.title.id_for_label }}">Title (UZ)</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.title_en.id_for_label }}">Title (EN)</label>
+      {{ form.title_en }}
+      {{ form.title_en.errors }}
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.slug.id_for_label }}">Slug</label>
+        {{ form.slug }}
+        {{ form.slug.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.category.id_for_label }}">Category</label>
+        {{ form.category }}
+        {{ form.category.errors }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.cover_image_url.id_for_label }}">Cover image URL</label>
+      {{ form.cover_image_url }}
+      {{ form.cover_image_url.errors }}
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.excerpt.id_for_label }}">Excerpt (UZ)</label>
+        {{ form.excerpt }}
+        {{ form.excerpt.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.excerpt_en.id_for_label }}">Excerpt (EN)</label>
+        {{ form.excerpt_en }}
+        {{ form.excerpt_en.errors }}
+      </div>
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.content.id_for_label }}">Content (UZ)</label>
+        {{ form.content }}
+        {{ form.content.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.content_en.id_for_label }}">Content (EN)</label>
+        {{ form.content_en }}
+        {{ form.content_en.errors }}
+      </div>
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.read_time_minutes.id_for_label }}">Read time (min)</label>
+        {{ form.read_time_minutes }}
+        {{ form.read_time_minutes.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.views_count.id_for_label }}">Views count</label>
+        {{ form.views_count }}
+        {{ form.views_count.errors }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.published_at.id_for_label }}">Published at</label>
+      {{ form.published_at }}
+      <p class="help">Format: YYYY-MM-DD HH:MM. If empty, current time is used.</p>
+      {{ form.published_at.errors }}
+    </div>
+
+    <div class="form-row-inline">
+      <div class="checkbox-row">{{ form.is_featured }} <label for="{{ form.is_featured.id_for_label }}">Featured post</label></div>
+      <div class="checkbox-row">{{ form.is_published }} <label for="{{ form.is_published.id_for_label }}">Published</label></div>
+    </div>
+
+    <div class="actions-cell">
+      <button type="submit" class="btn">Save post</button>
+      <a class="btn btn-ghost" href="{% url 'panel:post_list' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

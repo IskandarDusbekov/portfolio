@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel | Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #f0f4ff;
+            --bg-2: #f8faff;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #2563eb;
+            --accent-2: #0ea5e9;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background:
+                radial-gradient(circle at 10% 10%, rgba(37,99,235,0.08), transparent 28%),
+                radial-gradient(circle at 90% 30%, rgba(14,165,233,0.08), transparent 26%),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            min-height: 100vh;
+        }
+        .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar {
+            background: linear-gradient(180deg, #0b1224 0%, #0f1b38 100%);
+            color: #cbd5e1;
+            padding: 1.2rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .brand {
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: .3px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+        }
+        .brand-badge {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.45);
+            color: #bfdbfe;
+            border-radius: 999px;
+            font-size: .7rem;
+            padding: .15rem .45rem;
+        }
+        .menu-section { margin-bottom: .9rem; }
+        .menu-title {
+            color: #94a3b8;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: .35rem;
+            padding-left: .15rem;
+        }
+        .menu { display: grid; gap: .45rem; }
+        .menu a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: .62rem .75rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            border: 1px solid transparent;
+            transition: all .18s ease;
+        }
+        .menu a:hover, .menu a.active {
+            background: rgba(37, 99, 235, .22);
+            color: #fff;
+            border-color: rgba(96, 165, 250, .45);
+            transform: translateX(2px);
+        }
+        .main { padding: 1.2rem 1.4rem 1.4rem; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: .82rem .95rem;
+        }
+        .topbar strong { font-size: 1.02rem; }
+        .topbar-right { display: flex; align-items: center; gap: .7rem; }
+        .btn {
+            text-decoration: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 10px;
+            padding: .5rem .75rem;
+            font-size: .88rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+        }
+        .btn:hover { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25); }
+        .btn-sm { padding: .4rem .65rem; font-size: .82rem; }
+        .btn-ghost { background: #f8fafc; }
+        .btn-danger { background: #fff; border-color: #fecaca; color: var(--danger); }
+        .card {
+            background: rgba(255,255,255,0.96);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+        }
+        .card + .card { margin-top: .9rem; }
+        .card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-bottom: .9rem; }
+        .stat-card { position: relative; overflow: hidden; }
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            right: -18px;
+            top: -18px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(14,165,233,0.12));
+        }
+        .stat-card h3 { font-size: 1.4rem; margin-bottom: .2rem; position: relative; z-index: 1; }
+        .stat-card p { color: var(--muted); font-size: .9rem; position: relative; z-index: 1; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .7rem; gap: .6rem; }
+        .section-head h2 { font-size: 1.06rem; }
+        .search-form { display: flex; gap: .5rem; margin-bottom: .85rem; }
+        .actions-cell { display: flex; gap: .4rem; align-items: center; }
+        .actions-cell form { margin: 0; }
+        .flash-wrap { display: grid; gap: .5rem; margin-bottom: .8rem; }
+        .flash { padding: .65rem .75rem; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: .9rem; }
+        .flash.success { border-color: #bbf7d0; color: var(--success); }
+        .flash.error { border-color: #fecaca; color: var(--danger); }
+        .flash.warning { border-color: #fde68a; color: #a16207; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+        th, td { text-align: left; padding: .7rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { color: var(--muted); font-weight: 700; font-size: .82rem; text-transform: uppercase; letter-spacing: .4px; }
+        .form-grid { display: grid; gap: .8rem; }
+        .form-row { display: grid; gap: .35rem; }
+        .form-row-inline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+        .form-input { width: 100%; padding: .62rem .7rem; border: 1px solid var(--border); border-radius: 10px; font-size: .92rem; background: #fff; }
+        .form-input:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.2); }
+        label { font-size: .85rem; color: var(--muted); margin-bottom: .2rem; display: block; }
+        .help { color: var(--muted); font-size: .78rem; margin-top: .2rem; }
+        .errorlist { color: var(--danger); font-size: .82rem; list-style: none; margin: .2rem 0 0; }
+        .checkbox-row { display: flex; align-items: center; gap: .5rem; }
+        .checkbox-row label { margin-bottom: 0; }
+        .section-title { margin-bottom: .8rem; font-size: 1.05rem; font-weight: 700; }
+        @media (max-width: 1180px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { position: static; height: auto; }
+            .menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .two-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 760px) {
+            .topbar { flex-direction: column; align-items: flex-start; gap: .6rem; }
+            .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .form-row-inline { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 560px) {
+            .menu { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: 1fr; }
+            .search-form { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fas fa-gauge-high"></i> Custom Panel
+            <span class="brand-badge">staff</span>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Overview</div>
+            <nav class="menu">
+                <a href="{% url 'panel:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="{% url 'panel:profile_list' %}" class="{% if 'profile' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-user"></i> Profiles</a>
+                <a href="{% url 'panel:project_list' %}" class="{% if 'project' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-diagram-project"></i> Projects</a>
+                <a href="{% url 'panel:skill_list' %}" class="{% if 'skill' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-screwdriver-wrench"></i> Skills</a>
+                <a href="{% url 'panel:social_list' %}" class="{% if 'social' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-share-nodes"></i> Social Links</a>
+            </nav>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Content</div>
+            <nav class="menu">
+                <a href="{% url 'panel:post_list' %}" class="{% if 'post' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-newspaper"></i> Blog Posts</a>
+                <a href="{% url 'panel:category_list' %}" class="{% if 'category' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-tags"></i> Categories</a>
+                <a href="{% url 'panel:message_list' %}" class="{% if 'message' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-envelope"></i> Messages</a>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <strong>{{ page_title|default:"Panel" }}</strong>
+            <div class="topbar-right">
+                <a class="btn" href="{% url 'index' %}" target="_blank"><i class="fas fa-globe"></i> Website</a>
+                <a class="btn" href="{% url 'admin:index' %}" target="_blank"><i class="fas fa-shield-halved"></i> Django Admin</a>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="flash-wrap">
+            {% for message in messages %}
+                <div class="flash {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block panel_content %}{% endblock %}
+    </main>
+</div>
+</body>
+</html>

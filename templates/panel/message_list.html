@@ -1,0 +1,42 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}Messages{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Contact messages</h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Status</th><th>Name</th><th>Email</th><th>Message</th><th>Created</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for item in messages_list %}
+          <tr>
+            <td>{% if item.is_read %}Read{% else %}New{% endif %}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.message|linebreaksbr }}</td>
+            <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+              {% if not item.is_read %}
+                <form method="post" action="{% url 'panel:message_mark_read' item.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm">Mark read</button>
+                </form>
+              {% else %}
+                <span class="help">Done</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6">No messages yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

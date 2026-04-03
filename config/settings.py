@@ -1,4 +1,4 @@
-﻿"""
+"""
 Django settings for config project.
 """
 
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.main",
     "apps.blog",
+    "apps.panel",
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,7 @@ TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -166,7 +167,7 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_DIR / "django.log",
-            "maxBytes": 5 * 1024 * 1024,  # 5 MB
+            "maxBytes": 5 * 1024 * 1024,
             "backupCount": 5,
             "formatter": "standard",
         },
@@ -174,7 +175,7 @@ LOGGING = {
             "level": "ERROR",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_DIR / "errors.log",
-            "maxBytes": 5 * 1024 * 1024,  # 5 MB
+            "maxBytes": 5 * 1024 * 1024,
             "backupCount": 5,
             "formatter": "standard",
         },

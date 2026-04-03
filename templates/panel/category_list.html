@@ -1,0 +1,39 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}Categories{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Categories</h2>
+    <a class="btn" href="{% url 'panel:category_create' %}">+ New category</a>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Slug</th><th>Sort</th><th>Active</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+          <tr>
+            <td>{{ category.name }}</td>
+            <td>{{ category.slug }}</td>
+            <td>{{ category.sort_order }}</td>
+            <td>{% if category.is_active %}Yes{% else %}No{% endif %}</td>
+            <td class="actions-cell">
+              <a class="btn btn-sm" href="{% url 'panel:category_edit' category.pk %}">Edit</a>
+              <form method="post" action="{% url 'panel:category_delete' category.pk %}" onsubmit="return confirm('Delete this category?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5">No categories found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

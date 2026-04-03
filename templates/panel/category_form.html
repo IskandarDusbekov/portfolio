@@ -1,0 +1,41 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <h2 class="section-title">{{ page_title }}</h2>
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+
+    <div class="form-row">
+      <label for="{{ form.name.id_for_label }}">Name</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label for="{{ form.slug.id_for_label }}">Slug</label>
+        {{ form.slug }}
+        {{ form.slug.errors }}
+      </div>
+      <div class="form-row">
+        <label for="{{ form.sort_order.id_for_label }}">Sort order</label>
+        {{ form.sort_order }}
+        {{ form.sort_order.errors }}
+      </div>
+    </div>
+
+    <div class="checkbox-row">
+      {{ form.is_active }}
+      <label for="{{ form.is_active.id_for_label }}">Active category</label>
+    </div>
+
+    <div class="actions-cell">
+      <button type="submit" class="btn">Save category</button>
+      <a class="btn btn-ghost" href="{% url 'panel:category_list' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
