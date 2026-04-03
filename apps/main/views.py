@@ -67,7 +67,7 @@ def index(request):
     projects = list(Project.objects.filter(is_active=True))
     skills = list(Skill.objects.filter(is_active=True))
 
-    profile = Profile.objects.filter(is_active=True).first()
+    profile = Profile.objects.filter(is_active=True).order_by("-updated_at", "-id").first()
     if not profile:
         profile = Profile(
             full_name="Alex Morgan",

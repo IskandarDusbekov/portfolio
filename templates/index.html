@@ -6,9 +6,10 @@
     .hero { min-height: 85vh; display: flex; align-items: center; gap: 4rem; padding: 4rem 0; flex-wrap: wrap; }
     .hero-content { flex: 1.5; }
     .hero-image { flex: 1; display: flex; justify-content: center; align-items: center; }
-    .profile-img-container { position: relative; width: 280px; height: 280px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); padding: 4px; }
-    .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--bg-primary); border: 4px solid var(--bg-primary); }
-    .profile-placeholder { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--accent-light), var(--bg-secondary)); display: flex; align-items: center; justify-content: center; font-size: 5rem; color: var(--accent); }
+    .profile-img-container { position: relative; width: 280px; height: 280px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); padding: 4px; overflow: hidden; }
+    .profile-img, .profile-placeholder { position: absolute; inset: 4px; border-radius: 50%; }
+    .profile-img { width: calc(100% - 8px); height: calc(100% - 8px); object-fit: cover; background: var(--bg-primary); border: 4px solid var(--bg-primary); }
+    .profile-placeholder { background: linear-gradient(135deg, var(--accent-light), var(--bg-secondary)); display: flex; align-items: center; justify-content: center; font-size: 5rem; color: var(--accent); }
     .badge { background: var(--accent-light); padding: .4rem 1.2rem; border-radius: 40px; font-size: .85rem; font-weight: 600; color: var(--accent); width: fit-content; margin-bottom: 1rem; }
     .hero-content h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; margin-bottom: 1rem; }
     .hero-content h1 .highlight { color: var(--accent); }
@@ -103,8 +104,8 @@
     }
     .contact-line strong { color: var(--text-primary); font-weight: 600; }
     .about-image { flex: .8; display: flex; justify-content: center; align-items: center; }
-    .about-img-container { width: 200px; height: 200px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); background: var(--bg-card); }
-    .about-img { width: 100%; height: 100%; object-fit: cover; }
+    .about-img-container { position: relative; width: 200px; height: 200px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); background: var(--bg-card); }
+    .about-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .stats { flex: 1; display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; align-items: center; }
     .stat-item { text-align: center; background: var(--bg-card); padding: 1.2rem; border-radius: 24px; min-width: 110px; border: 1px solid var(--border-color); }
     .stat-number { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
@@ -165,11 +166,10 @@
     </div>
     <div class="hero-image">
         <div class="profile-img-container" id="profileContainer">
-            <div class="profile-placeholder" id="profilePlaceholder"><i class="fas fa-user-astronaut"></i></div>
             {% if profile.profile_image %}
                 <img class="profile-img" id="profileImage" src="{{ profile.profile_image.url }}" alt="Profile Photo" />
             {% else %}
-                <img class="profile-img" id="profileImage" style="display: none;" alt="Profile Photo" />
+                <div class="profile-placeholder" id="profilePlaceholder"><i class="fas fa-user-astronaut"></i></div>
             {% endif %}
         </div>
     </div>
@@ -251,11 +251,10 @@
         </div>
         <div class="about-image">
             <div class="about-img-container" id="aboutImageContainer">
-                <div class="profile-placeholder" id="aboutPlaceholder" style="font-size: 3rem;"><i class="fas fa-code"></i></div>
                 {% if profile.profile_image %}
                     <img class="about-img" id="aboutImage" src="{{ profile.profile_image.url }}" alt="About Photo" />
                 {% else %}
-                    <img class="about-img" id="aboutImage" style="display: none;" alt="About Photo" />
+                    <div class="profile-placeholder" id="aboutPlaceholder" style="font-size: 3rem;"><i class="fas fa-code"></i></div>
                 {% endif %}
             </div>
         </div>
