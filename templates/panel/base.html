@@ -162,6 +162,40 @@
         .checkbox-row { display: flex; align-items: center; gap: .5rem; }
         .checkbox-row label { margin-bottom: 0; }
         .section-title { margin-bottom: .8rem; font-size: 1.05rem; font-weight: 700; }
+        .user-chip { display: flex; align-items: center; gap: .5rem; color: var(--muted); font-size: .85rem; }
+        .user-chip .avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: #fff; display: grid; place-items: center; font-size: .8rem; font-weight: 700;
+        }
+        .logout-btn { border: 1px solid #fecaca; background: #fff; color: var(--danger); }
+        .logout-btn:hover { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,.2); }
+        .sidebar-foot { margin-top: auto; padding-top: 1rem; }
+        .sidebar-inner { display: flex; flex-direction: column; height: 100%; }
+        /* Bar chart */
+        .chart { display: flex; align-items: flex-end; gap: .5%; height: 190px; padding: .4rem 0; }
+        .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; height: 100%; justify-content: flex-end; }
+        .chart-bar {
+            width: 68%;
+            min-height: 3px;
+            border-radius: 6px 6px 2px 2px;
+            background: linear-gradient(180deg, #3b82f6, #0ea5e9);
+            transition: filter .15s;
+            position: relative;
+        }
+        .chart-col:hover .chart-bar { filter: brightness(1.15); }
+        .chart-bar .tip {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: #0f172a; color: #fff; font-size: .7rem; padding: .2rem .4rem;
+            border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none;
+            transition: opacity .15s; margin-bottom: 4px;
+        }
+        .chart-col:hover .chart-bar .tip { opacity: 1; }
+        .chart-label { font-size: .66rem; color: var(--muted); white-space: nowrap; }
+        .mini-stat h3 { font-size: 1.5rem; }
+        .badge { display: inline-block; padding: .12rem .5rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .pager { display: flex; gap: .5rem; align-items: center; justify-content: center; margin-top: .9rem; }
         @media (max-width: 1180px) {
             .layout { grid-template-columns: 1fr; }
             .sidebar { position: static; height: auto; }
@@ -184,8 +218,9 @@
 <body>
 <div class="layout">
     <aside class="sidebar">
+      <div class="sidebar-inner">
         <div class="brand">
-            <i class="fas fa-gauge-high"></i> Custom Panel
+            <i class="fas fa-gauge-high"></i> Control Panel
             <span class="brand-badge">staff</span>
         </div>
 
@@ -193,6 +228,7 @@
             <div class="menu-title">Overview</div>
             <nav class="menu">
                 <a href="{% url 'panel:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="{% url 'panel:analytics' %}" class="{% if request.resolver_match.url_name == 'analytics' %}active{% endif %}"><i class="fas fa-chart-line"></i> Analytics</a>
                 <a href="{% url 'panel:profile_list' %}" class="{% if 'profile' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-user"></i> Profiles</a>
                 <a href="{% url 'panel:project_list' %}" class="{% if 'project' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-diagram-project"></i> Projects</a>
                 <a href="{% url 'panel:skill_list' %}" class="{% if 'skill' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-screwdriver-wrench"></i> Skills</a>
@@ -208,14 +244,29 @@
                 <a href="{% url 'panel:message_list' %}" class="{% if 'message' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-envelope"></i> Messages</a>
             </nav>
         </div>
+
+        <div class="sidebar-foot menu-section">
+            <div class="menu-title">System</div>
+            <nav class="menu">
+                <a href="{% url 'index' %}" target="_blank"><i class="fas fa-globe"></i> Saytni ochish</a>
+                <a href="{% url 'admin:index' %}" target="_blank"><i class="fas fa-shield-halved"></i> Django Admin</a>
+            </nav>
+        </div>
+      </div>
     </aside>
 
     <main class="main">
         <div class="topbar">
             <strong>{{ page_title|default:"Panel" }}</strong>
             <div class="topbar-right">
-                <a class="btn" href="{% url 'index' %}" target="_blank"><i class="fas fa-globe"></i> Website</a>
-                <a class="btn" href="{% url 'admin:index' %}" target="_blank"><i class="fas fa-shield-halved"></i> Django Admin</a>
+                <div class="user-chip">
+                    <span class="avatar">{{ request.user.username|slice:":1"|upper }}</span>
+                    {{ request.user.get_username }}
+                </div>
+                <form method="post" action="{% url 'panel:logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn logout-btn"><i class="fas fa-right-from-bracket"></i> Chiqish</button>
+                </form>
             </div>
         </div>
 

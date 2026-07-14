@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ContactMessage, Profile, Project, Skill, SocialLink
+from .models import ContactMessage, PageVisit, Profile, Project, Skill, SocialLink
 
 
 @admin.register(Profile)
@@ -42,3 +42,17 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ("name", "email", "message")
     readonly_fields = ("name", "email", "message", "created_at", "updated_at")
     list_editable = ("is_read",)
+
+
+@admin.register(PageVisit)
+class PageVisitAdmin(admin.ModelAdmin):
+    list_display = ("path", "ip_address", "is_authenticated", "created_at")
+    list_filter = ("is_authenticated", "created_at")
+    search_fields = ("path", "ip_address", "session_key")
+    readonly_fields = (
+        "path", "ip_address", "session_key", "user_agent",
+        "referrer", "is_authenticated", "created_at",
+    )
+
+    def has_add_permission(self, request):
+        return False

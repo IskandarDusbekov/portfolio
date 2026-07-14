@@ -1,13 +1,25 @@
+from datetime import timedelta
 from functools import wraps
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Q
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.blog.models import BlogCategory, BlogPost
-from apps.main.models import ContactMessage, Profile, Project, Skill, SocialLink
+from apps.main.models import (
+    ContactMessage,
+    PageVisit,
+    Profile,
+    Project,
+    Skill,
+    SocialLink,
+)
 from .forms import (
     BlogCategoryForm,
     BlogPostForm,
@@ -20,12 +32,110 @@ from .forms import (
 
 def staff_required(view_func):
     @wraps(view_func)
-    @login_required(login_url="/admin/login/")
-    @user_passes_test(lambda u: u.is_staff, login_url="/admin/login/")
+    @login_required(login_url="panel:login")
+    @user_passes_test(lambda u: u.is_staff, login_url="panel:login")
     def _wrapped(request, *args, **kwargs):
         return view_func(request, *args, **kwargs)
 
     return _wrapped
+
+
+def panel_login(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect("panel:dashboard")
+
+    error = None
+    next_url = request.GET.get("next", "") or request.POST.get("next", "")
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect(next_url or "panel:dashboard")
+        if user is not None and not user.is_staff:
+            error = "Bu hisobda panelga kirish huquqi yo'q."
+        else:
+            error = "Login yoki parol noto'g'ri."
+    return render(request, "panel/login.html", {"error": error, "next": next_url})
+
+
+@login_required(login_url="panel:login")
+@require_POST
+def panel_logout(request):
+    logout(request)
+    return redirect("panel:login")
+
+
+def _visit_analytics():
+    """Aggregate visitor stats used by the dashboard and analytics page."""
+    today = timezone.localdate()
+    window_start = today - timedelta(days=13)
+
+    visits = PageVisit.objects.filter(is_authenticated=False)
+
+    daily_counts = {
+        row["day"]: row["count"]
+        for row in (
+            visits.filter(created_at__date__gte=window_start)
+            .annotate(day=TruncDate("created_at"))
+            .values("day")
+            .annotate(count=Count("id"))
+        )
+    }
+    daily_uniques = {
+        row["day"]: row["uniques"]
+        for row in (
+            visits.filter(created_at__date__gte=window_start)
+            .annotate(day=TruncDate("created_at"))
+            .values("day")
+            .annotate(uniques=Count("session_key", distinct=True))
+        )
+    }
+
+    series = []
+    for offset in range(13, -1, -1):
+        day = today - timedelta(days=offset)
+        series.append(
+            {
+                "label": day.strftime("%m-%d"),
+                "count": daily_counts.get(day, 0),
+                "uniques": daily_uniques.get(day, 0),
+            }
+        )
+    max_count = max((item["count"] for item in series), default=0) or 1
+    for item in series:
+        item["height"] = round(item["count"] / max_count * 100)
+
+    def _range_count(days):
+        return visits.filter(created_at__date__gte=today - timedelta(days=days - 1)).count()
+
+    def _range_unique(days):
+        return (
+            visits.filter(created_at__date__gte=today - timedelta(days=days - 1))
+            .values("session_key")
+            .distinct()
+            .count()
+        )
+
+    top_pages = list(
+        visits.filter(created_at__date__gte=today - timedelta(days=29))
+        .values("path")
+        .annotate(count=Count("id"))
+        .order_by("-count")[:8]
+    )
+
+    return {
+        "visits_today": visits.filter(created_at__date=today).count(),
+        "unique_today": visits.filter(created_at__date=today).values("session_key").distinct().count(),
+        "visits_7d": _range_count(7),
+        "unique_7d": _range_unique(7),
+        "visits_30d": _range_count(30),
+        "total_visits": visits.count(),
+        "visit_series": series,
+        "top_pages": top_pages,
+        "recent_visits": visits.order_by("-created_at")[:10],
+    }
 
 
 @staff_required
@@ -43,7 +153,22 @@ def dashboard(request):
         "recent_projects": Project.objects.order_by("-updated_at")[:5],
         "recent_messages": ContactMessage.objects.order_by("-created_at")[:5],
     }
+    context.update(_visit_analytics())
     return render(request, "panel/dashboard.html", context)
+
+
+@staff_required
+def analytics(request):
+    visits = PageVisit.objects.filter(is_authenticated=False).order_by("-created_at")
+    paginator = Paginator(visits, 40)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    context = {
+        "page_title": "Analytics",
+        "page_obj": page_obj,
+    }
+    context.update(_visit_analytics())
+    return render(request, "panel/analytics.html", context)
 
 
 @staff_required

@@ -5,7 +5,10 @@ from . import views
 app_name = "panel"
 
 urlpatterns = [
+    path("login/", views.panel_login, name="login"),
+    path("logout/", views.panel_logout, name="logout"),
     path("", views.dashboard, name="dashboard"),
+    path("analytics/", views.analytics, name="analytics"),
     path("profiles/", views.profile_list, name="profile_list"),
     path("profiles/create/", views.profile_create, name="profile_create"),
     path("profiles/<int:pk>/edit/", views.profile_edit, name="profile_edit"),

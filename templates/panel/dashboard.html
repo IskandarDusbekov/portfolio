@@ -4,6 +4,68 @@
 
 {% block panel_content %}
 <section class="card-grid">
+  <article class="card stat-card mini-stat"><h3>{{ visits_today }}</h3><p><i class="fas fa-eye"></i> Bugungi tashriflar</p></article>
+  <article class="card stat-card mini-stat"><h3>{{ unique_today }}</h3><p><i class="fas fa-user-check"></i> Bugungi noyob mehmonlar</p></article>
+  <article class="card stat-card mini-stat"><h3>{{ visits_7d }}</h3><p><i class="fas fa-calendar-week"></i> So'nggi 7 kun</p></article>
+  <article class="card stat-card mini-stat"><h3>{{ total_visits }}</h3><p><i class="fas fa-chart-simple"></i> Jami tashriflar</p></article>
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>So'nggi 14 kunlik kirivchilar</h2>
+    <a class="btn btn-sm" href="{% url 'panel:analytics' %}"><i class="fas fa-chart-line"></i> Batafsil</a>
+  </div>
+  <div class="chart">
+    {% for day in visit_series %}
+      <div class="chart-col">
+        <div class="chart-bar" style="height: {{ day.height }}%;">
+          <span class="tip">{{ day.count }} tashrif / {{ day.uniques }} mehmon</span>
+        </div>
+        <span class="chart-label">{{ day.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="card two-col">
+  <div>
+    <div class="section-head"><h2>Eng ko'p ochilgan sahifalar (30 kun)</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sahifa</th><th>Ko'rishlar</th></tr></thead>
+        <tbody>
+          {% for page in top_pages %}
+            <tr><td>{{ page.path }}</td><td><span class="badge badge-blue">{{ page.count }}</span></td></tr>
+          {% empty %}
+            <tr><td colspan="2">Hali tashriflar yo'q.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div>
+    <div class="section-head"><h2>Oxirgi tashrifchilar</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sahifa</th><th>IP</th><th>Vaqt</th></tr></thead>
+        <tbody>
+          {% for visit in recent_visits %}
+            <tr>
+              <td>{{ visit.path|truncatechars:26 }}</td>
+              <td>{{ visit.ip_address|default:"—" }}</td>
+              <td>{{ visit.created_at|date:"m-d H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3">Hali tashriflar yo'q.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<h2 class="section-title" style="margin-top:1.2rem;">Kontent statistikasi</h2>
+<section class="card-grid">
   <article class="card stat-card"><h3>{{ profiles_count }}</h3><p>Profiles</p></article>
   <article class="card stat-card"><h3>{{ projects_count }}</h3><p>Projects</p></article>
   <article class="card stat-card"><h3>{{ skills_count }}</h3><p>Skills</p></article>

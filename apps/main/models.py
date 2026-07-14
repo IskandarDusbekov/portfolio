@@ -115,3 +115,24 @@ class ContactMessage(TimestampedModel):
 
     def __str__(self):
         return f"{self.name} <{self.email}>"
+
+
+class PageVisit(models.Model):
+    """A single page view by a site visitor, used for the panel analytics."""
+
+    path = models.CharField(max_length=255, db_index=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    session_key = models.CharField(max_length=40, blank=True, db_index=True)
+    user_agent = models.CharField(max_length=300, blank=True)
+    referrer = models.CharField(max_length=300, blank=True)
+    is_authenticated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["created_at", "session_key"]),
+        ]
+
+    def __str__(self):
+        return f"{self.path} @ {self.created_at:%Y-%m-%d %H:%M}"
