@@ -131,7 +131,7 @@ def robots_txt(request):
     lines = [
         "User-agent: *",
         f"Disallow: /{settings.ADMIN_URL}",
-        "Disallow: /panel/",
+        f"Disallow: /{settings.PANEL_URL}",
         "Disallow: /media/",
         "",
     ]

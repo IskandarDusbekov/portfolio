@@ -35,6 +35,11 @@ ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "127
 ADMIN_URL = os.getenv("DJANGO_ADMIN_URL", "admin/").strip().lstrip("/")
 if ADMIN_URL and not ADMIN_URL.endswith("/"):
     ADMIN_URL += "/"
+
+# Custom boshqaruv paneli manzili — env orqali maxfiy qilish mumkin.
+PANEL_URL = os.getenv("DJANGO_PANEL_URL", "panel/").strip().lstrip("/")
+if PANEL_URL and not PANEL_URL.endswith("/"):
+    PANEL_URL += "/"
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")

@@ -8,7 +8,7 @@ from apps.main.views import robots_txt
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("robots.txt", robots_txt, name="robots_txt"),
-    path("panel/", include("apps.panel.urls")),
+    path(settings.PANEL_URL, include("apps.panel.urls")),
     path("", include("apps.main.urls")),
     path("blog/", include("apps.blog.urls")),
 ]
