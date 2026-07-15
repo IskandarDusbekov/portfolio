@@ -3,6 +3,13 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block panel_content %}
+<section class="quick-actions">
+  <a class="btn btn-primary-soft" href="{% url 'panel:post_create' %}"><i class="fas fa-plus"></i> Yangi post</a>
+  <a class="btn" href="{% url 'panel:project_create' %}"><i class="fas fa-plus"></i> Yangi loyiha</a>
+  <a class="btn" href="{% url 'panel:message_list' %}"><i class="fas fa-envelope"></i> Xabarlar{% if unread_messages_count %} <span class="badge badge-red">{{ unread_messages_count }}</span>{% endif %}</a>
+  <a class="btn" href="{% url 'panel:blocked_ip_list' %}"><i class="fas fa-ban"></i> IP bloklash{% if blocked_ips_count %} <span class="badge badge-blue">{{ blocked_ips_count }}</span>{% endif %}</a>
+</section>
+
 <section class="card-grid">
   <article class="card stat-card mini-stat"><h3>{{ visits_today }}</h3><p><i class="fas fa-eye"></i> Bugungi tashriflar</p></article>
   <article class="card stat-card mini-stat"><h3>{{ unique_today }}</h3><p><i class="fas fa-user-check"></i> Bugungi noyob mehmonlar</p></article>
@@ -44,19 +51,32 @@
     </div>
   </div>
   <div>
-    <div class="section-head"><h2>Oxirgi tashrifchilar</h2></div>
+    <div class="section-head">
+      <h2>Oxirgi tashrifchilar</h2>
+      <a class="btn btn-sm" href="{% url 'panel:blocked_ip_list' %}"><i class="fas fa-ban"></i> Bloklangan IP'lar</a>
+    </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Sahifa</th><th>IP</th><th>Vaqt</th></tr></thead>
+        <thead><tr><th>Sahifa</th><th>IP</th><th>Vaqt</th><th>Amal</th></tr></thead>
         <tbody>
           {% for visit in recent_visits %}
             <tr>
-              <td>{{ visit.path|truncatechars:26 }}</td>
+              <td>{{ visit.path|truncatechars:22 }}</td>
               <td>{{ visit.ip_address|default:"—" }}</td>
               <td>{{ visit.created_at|date:"m-d H:i" }}</td>
+              <td>
+                {% if visit.ip_address %}
+                  <form method="post" action="{% url 'panel:block_ip_quick' %}" style="margin:0;" onsubmit="return confirm('{{ visit.ip_address }} bloklansinmi?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="ip_address" value="{{ visit.ip_address }}" />
+                    <input type="hidden" name="next" value="{{ request.path }}" />
+                    <button type="submit" class="btn btn-sm btn-danger" title="Bloklash"><i class="fas fa-ban"></i></button>
+                  </form>
+                {% else %}—{% endif %}
+              </td>
             </tr>
           {% empty %}
-            <tr><td colspan="3">Hali tashriflar yo'q.</td></tr>
+            <tr><td colspan="4">Hali tashriflar yo'q.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -74,6 +94,7 @@
   <article class="card stat-card"><h3>{{ published_posts_count }}</h3><p>Published posts</p></article>
   <article class="card stat-card"><h3>{{ categories_count }}</h3><p>Categories</p></article>
   <article class="card stat-card"><h3>{{ unread_messages_count }}</h3><p>Unread messages</p></article>
+  <article class="card stat-card"><h3>{{ blocked_ips_count }}</h3><p>Blocked IPs</p></article>
 </section>
 
 <section class="card two-col">

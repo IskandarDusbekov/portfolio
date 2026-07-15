@@ -5,7 +5,7 @@
 {% block panel_content %}
 <section class="card">
   <h2 class="section-title">{{ page_title }}</h2>
-  <form method="post" class="form-grid">
+  <form method="post" class="form-grid" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="form-row">
@@ -34,8 +34,19 @@
     </div>
 
     <div class="form-row">
-      <label for="{{ form.cover_image_url.id_for_label }}">Cover image URL</label>
+      <label for="{{ form.cover_image.id_for_label }}">Cover image (rasm yuklash)</label>
+      {% if post and post.cover_src %}
+        <img src="{{ post.cover_src }}" alt="Current cover" style="max-width:220px; border-radius:10px; margin-bottom:.5rem; border:1px solid var(--border);" />
+      {% endif %}
+      {{ form.cover_image }}
+      <p class="help">Kompyuteringizdan rasm tanlang (JPG, PNG). URL shart emas.</p>
+      {{ form.cover_image.errors }}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.cover_image_url.id_for_label }}">Yoki rasm URL (ixtiyoriy)</label>
       {{ form.cover_image_url }}
+      <p class="help">Agar rasm yuklamasangiz, shu yerga tashqi rasm havolasini qo'ysangiz bo'ladi.</p>
       {{ form.cover_image_url.errors }}
     </div>
 

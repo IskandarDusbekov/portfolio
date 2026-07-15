@@ -1,6 +1,10 @@
+from django.core.cache import cache
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
+
+
+BLOCKED_IPS_CACHE_KEY = "blocked_ips_set"
 
 
 phone_validator = RegexValidator(
@@ -144,3 +148,36 @@ class PageVisit(models.Model):
 
     def __str__(self):
         return f"{self.path} @ {self.created_at:%Y-%m-%d %H:%M}"
+
+
+class BlockedIP(models.Model):
+    """Bloklangan IP manzillar — bu IP'lardan kelgan so'rovlar rad etiladi."""
+
+    ip_address = models.GenericIPAddressField(unique=True)
+    reason = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Blocked IP"
+        verbose_name_plural = "Blocked IPs"
+
+    def __str__(self):
+        return self.ip_address
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(BLOCKED_IPS_CACHE_KEY)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        cache.delete(BLOCKED_IPS_CACHE_KEY)
+
+    @classmethod
+    def blocked_set(cls):
+        """Bloklangan IP'lar to'plami (5 daqiqaga keshlanadi)."""
+        ips = cache.get(BLOCKED_IPS_CACHE_KEY)
+        if ips is None:
+            ips = set(cls.objects.values_list("ip_address", flat=True))
+            cache.set(BLOCKED_IPS_CACHE_KEY, ips, timeout=300)
+        return ips

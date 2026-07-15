@@ -15,6 +15,7 @@ from django.views.decorators.http import require_POST
 
 from apps.blog.models import BlogCategory, BlogPost
 from apps.main.models import (
+    BlockedIP,
     ContactMessage,
     PageVisit,
     Profile,
@@ -23,6 +24,7 @@ from apps.main.models import (
     SocialLink,
 )
 from .forms import (
+    BlockedIPForm,
     BlogCategoryForm,
     BlogPostForm,
     ProfileForm,
@@ -171,6 +173,7 @@ def dashboard(request):
         "social_links_count": SocialLink.objects.count(),
         "profiles_count": Profile.objects.count(),
         "unread_messages_count": ContactMessage.objects.filter(is_read=False).count(),
+        "blocked_ips_count": BlockedIP.objects.count(),
         "recent_posts": BlogPost.objects.select_related("category").order_by("-updated_at")[:5],
         "recent_projects": Project.objects.order_by("-updated_at")[:5],
         "recent_messages": ContactMessage.objects.order_by("-created_at")[:5],
@@ -194,6 +197,51 @@ def analytics(request):
 
 
 @staff_required
+def blocked_ip_list(request):
+    if request.method == "POST":
+        form = BlockedIPForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"{form.cleaned_data['ip_address']} bloklandi.")
+            return redirect("panel:blocked_ip_list")
+    else:
+        form = BlockedIPForm()
+    blocked = BlockedIP.objects.all()
+    return render(
+        request,
+        "panel/blocked_ip_list.html",
+        {"blocked": blocked, "form": form, "page_title": "Bloklangan IP'lar"},
+    )
+
+
+@staff_required
+@require_POST
+def blocked_ip_delete(request, pk):
+    blocked = get_object_or_404(BlockedIP, pk=pk)
+    ip = blocked.ip_address
+    blocked.delete()
+    messages.success(request, f"{ip} blokdan chiqarildi.")
+    return redirect("panel:blocked_ip_list")
+
+
+@staff_required
+@require_POST
+def block_ip_quick(request):
+    """Dashboard/analytics'dagi tashrifchi qatoridan tez bloklash."""
+    ip = request.POST.get("ip_address", "").strip()
+    next_url = request.POST.get("next") or "panel:dashboard"
+    if ip:
+        obj, created = BlockedIP.objects.get_or_create(
+            ip_address=ip, defaults={"reason": "Paneldan tez bloklandi"}
+        )
+        if created:
+            messages.success(request, f"{ip} bloklandi.")
+        else:
+            messages.warning(request, f"{ip} allaqachon bloklangan.")
+    return redirect(_safe_next(request, next_url) if next_url.startswith("/") else next_url)
+
+
+@staff_required
 def post_list(request):
     query = request.GET.get("q", "").strip()
     posts = BlogPost.objects.select_related("category").order_by("-published_at")
@@ -211,7 +259,7 @@ def post_list(request):
 @staff_required
 def post_create(request):
     if request.method == "POST":
-        form = BlogPostForm(request.POST)
+        form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, "Post created successfully.")
@@ -225,7 +273,7 @@ def post_create(request):
 def post_edit(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
     if request.method == "POST":
-        form = BlogPostForm(request.POST, instance=post)
+        form = BlogPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
             messages.success(request, "Post updated successfully.")

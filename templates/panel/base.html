@@ -195,6 +195,10 @@
         .mini-stat h3 { font-size: 1.5rem; }
         .badge { display: inline-block; padding: .12rem .5rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
         .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .badge-red { background: #fee2e2; color: #b91c1c; }
+        .quick-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-bottom: 1rem; }
+        .btn-primary-soft { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; border: none; }
+        .btn-primary-soft:hover { box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35); }
         .pager { display: flex; gap: .5rem; align-items: center; justify-content: center; margin-top: .9rem; }
         @media (max-width: 1180px) {
             .layout { grid-template-columns: 1fr; }
@@ -242,6 +246,13 @@
                 <a href="{% url 'panel:post_list' %}" class="{% if 'post' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-newspaper"></i> Blog Posts</a>
                 <a href="{% url 'panel:category_list' %}" class="{% if 'category' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-tags"></i> Categories</a>
                 <a href="{% url 'panel:message_list' %}" class="{% if 'message' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-envelope"></i> Messages</a>
+            </nav>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Xavfsizlik</div>
+            <nav class="menu">
+                <a href="{% url 'panel:blocked_ip_list' %}" class="{% if 'blocked' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-ban"></i> IP bloklash</a>
             </nav>
         </div>
 

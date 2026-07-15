@@ -1,0 +1,55 @@
+{% extends "panel/base.html" %}
+
+{% block page_title %}Bloklangan IP'lar{% endblock %}
+
+{% block panel_content %}
+<section class="card">
+  <div class="section-head">
+    <h2><i class="fas fa-ban"></i> IP bloklash</h2>
+  </div>
+  <form method="post" class="form-grid" style="max-width:520px;">
+    {% csrf_token %}
+    <div class="form-row">
+      <label for="{{ form.ip_address.id_for_label }}">IP manzil</label>
+      {{ form.ip_address }}
+      {{ form.ip_address.errors }}
+    </div>
+    <div class="form-row">
+      <label for="{{ form.reason.id_for_label }}">Sabab</label>
+      {{ form.reason }}
+      {{ form.reason.errors }}
+    </div>
+    <div class="actions-cell">
+      <button type="submit" class="btn btn-danger"><i class="fas fa-ban"></i> Bloklash</button>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>Bloklangan IP'lar ro'yxati</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>IP manzil</th><th>Sabab</th><th>Sana</th><th>Amal</th></tr></thead>
+      <tbody>
+        {% for item in blocked %}
+          <tr>
+            <td><strong>{{ item.ip_address }}</strong></td>
+            <td>{{ item.reason|default:"—" }}</td>
+            <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+              <form method="post" action="{% url 'panel:blocked_ip_delete' item.pk %}" onsubmit="return confirm('Blokdan chiqarilsinmi?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-ghost"><i class="fas fa-unlock"></i> Chiqarish</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">Hozircha bloklangan IP yo'q.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -35,4 +35,7 @@ urlpatterns = [
     path("categories/<int:pk>/delete/", views.category_delete, name="category_delete"),
     path("messages/", views.message_list, name="message_list"),
     path("messages/<int:pk>/read/", views.message_mark_read, name="message_mark_read"),
+    path("blocked-ips/", views.blocked_ip_list, name="blocked_ip_list"),
+    path("blocked-ips/<int:pk>/delete/", views.blocked_ip_delete, name="blocked_ip_delete"),
+    path("block-ip/", views.block_ip_quick, name="block_ip_quick"),
 ]

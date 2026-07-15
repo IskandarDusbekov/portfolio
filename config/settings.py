@@ -62,6 +62,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Bloklangan IP'larni erta rad etamiz
+    "apps.main.middleware.IPBlockMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "apps.main.middleware.SiteLanguageMiddleware",
     "django.middleware.common.CommonMiddleware",

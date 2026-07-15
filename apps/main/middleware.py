@@ -1,4 +1,31 @@
-﻿class VisitTrackingMiddleware:
+﻿class IPBlockMiddleware:
+    """Bloklangan IP'lardan kelgan so'rovlarni 403 bilan rad etadi."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        client_ip = self._client_ip(request)
+        if client_ip:
+            from apps.main.models import BlockedIP
+
+            if client_ip in BlockedIP.blocked_set():
+                from django.http import HttpResponseForbidden
+
+                return HttpResponseForbidden(
+                    "<h1>403 Forbidden</h1><p>Sizning IP manzilingiz bloklangan.</p>"
+                )
+        return self.get_response(request)
+
+    @staticmethod
+    def _client_ip(request):
+        forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+        return request.META.get("REMOTE_ADDR")
+
+
+class VisitTrackingMiddleware:
     """Records public page views into PageVisit for the panel analytics.
 
     Skips admin/panel/static assets, non-GET requests, non-HTML responses,

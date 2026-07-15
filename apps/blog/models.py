@@ -27,6 +27,7 @@ class BlogPost(models.Model):
     title_en = models.CharField(max_length=200, blank=True)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     category = models.ForeignKey(BlogCategory, on_delete=models.PROTECT, related_name="posts")
+    cover_image = models.ImageField(upload_to="blog/", blank=True, null=True)
     cover_image_url = models.URLField(blank=True)
     excerpt = models.CharField(max_length=320)
     excerpt_en = models.CharField(max_length=320, blank=True)
@@ -55,6 +56,13 @@ class BlogPost(models.Model):
                 slug = f"{base_slug}-{idx}"
             self.slug = slug
         super().save(*args, **kwargs)
+
+    @property
+    def cover_src(self):
+        """Yuklangan rasmni afzal ko'radi, bo'lmasa eski URL maydonini qaytaradi."""
+        if self.cover_image:
+            return self.cover_image.url
+        return self.cover_image_url
 
     @property
     def read_time_label(self):

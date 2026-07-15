@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import ContactMessage, PageVisit, Profile, Project, Skill, SocialLink
+from .models import (
+    BlockedIP,
+    ContactMessage,
+    PageVisit,
+    Profile,
+    Project,
+    Skill,
+    SocialLink,
+)
 
 
 @admin.register(Profile)
@@ -56,3 +64,9 @@ class PageVisitAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(BlockedIP)
+class BlockedIPAdmin(admin.ModelAdmin):
+    list_display = ("ip_address", "reason", "created_at")
+    search_fields = ("ip_address", "reason")

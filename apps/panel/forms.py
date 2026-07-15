@@ -1,7 +1,17 @@
 from django import forms
 
 from apps.blog.models import BlogCategory, BlogPost
-from apps.main.models import Profile, Project, Skill, SocialLink
+from apps.main.models import BlockedIP, Profile, Project, Skill, SocialLink
+
+
+class BlockedIPForm(forms.ModelForm):
+    class Meta:
+        model = BlockedIP
+        fields = ["ip_address", "reason"]
+        widgets = {
+            "ip_address": forms.TextInput(attrs={"class": "form-input", "placeholder": "192.168.1.1"}),
+            "reason": forms.TextInput(attrs={"class": "form-input", "placeholder": "Sabab (ixtiyoriy)"}),
+        }
 
 
 class BlogPostForm(forms.ModelForm):
@@ -12,6 +22,7 @@ class BlogPostForm(forms.ModelForm):
             "title_en",
             "slug",
             "category",
+            "cover_image",
             "cover_image_url",
             "excerpt",
             "excerpt_en",
@@ -28,7 +39,8 @@ class BlogPostForm(forms.ModelForm):
             "title_en": forms.TextInput(attrs={"class": "form-input", "placeholder": "Post title (EN)"}),
             "slug": forms.TextInput(attrs={"class": "form-input", "placeholder": "post-slug"}),
             "category": forms.Select(attrs={"class": "form-input"}),
-            "cover_image_url": forms.URLInput(attrs={"class": "form-input", "placeholder": "https://..."}),
+            "cover_image": forms.ClearableFileInput(attrs={"class": "form-input", "accept": "image/*"}),
+            "cover_image_url": forms.URLInput(attrs={"class": "form-input", "placeholder": "https://... (ixtiyoriy)"}),
             "excerpt": forms.Textarea(attrs={"class": "form-input", "rows": 3, "placeholder": "Short excerpt (UZ)"}),
             "excerpt_en": forms.Textarea(attrs={"class": "form-input", "rows": 3, "placeholder": "Short excerpt (EN)"}),
             "content": forms.Textarea(attrs={"class": "form-input", "rows": 10, "placeholder": "Full content (UZ)"}),
