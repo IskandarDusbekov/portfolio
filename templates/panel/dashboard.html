@@ -132,12 +132,12 @@
   </div>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Name</th><th>Email</th><th>Preview</th><th>Time</th></tr></thead>
+      <thead><tr><th>Name</th><th>Phone</th><th>Preview</th><th>Time</th></tr></thead>
       <tbody>
         {% for item in recent_messages %}
           <tr>
             <td>{{ item.name }}</td>
-            <td>{{ item.email }}</td>
+            <td>{{ item.phone }}</td>
             <td>{{ item.message|truncatechars:60 }}</td>
             <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
           </tr>

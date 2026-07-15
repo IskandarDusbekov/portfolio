@@ -281,7 +281,7 @@
         {% csrf_token %}
         <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;" />
         <input type="text" id="nameInput" name="name" placeholder="Your name" autocomplete="off" required />
-        <input type="email" id="emailInput" name="email" placeholder="Email address" required />
+        <input type="tel" id="phoneInput" name="phone" placeholder="Phone number (+998...)" autocomplete="off" pattern="^\+?[0-9\s\-()]{7,20}$" required />
         <textarea rows="4" id="msgInput" name="message" placeholder="Tell me about your project..." required></textarea>
         <button class="btn btn-primary" id="sendMsgBtn" type="submit"><i class="fas fa-paper-plane"></i> Send Message</button>
         <p id="formFeedback" style="font-size:.85rem; color: var(--accent);"></p>

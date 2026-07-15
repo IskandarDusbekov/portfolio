@@ -1,5 +1,12 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
+
+
+phone_validator = RegexValidator(
+    regex=r"^\+?[0-9\s\-()]{7,20}$",
+    message="Telefon raqamini to'g'ri kiriting. Masalan: +998901234567",
+)
 
 
 class TimestampedModel(models.Model):
@@ -106,7 +113,8 @@ class SocialLink(TimestampedModel):
 
 class ContactMessage(TimestampedModel):
     name = models.CharField(max_length=120)
-    email = models.EmailField()
+    phone = models.CharField(max_length=20, default="", validators=[phone_validator])
+    email = models.EmailField(blank=True)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
 
@@ -114,7 +122,7 @@ class ContactMessage(TimestampedModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.name} <{self.email}>"
+        return f"{self.name} <{self.phone}>"
 
 
 class PageVisit(models.Model):

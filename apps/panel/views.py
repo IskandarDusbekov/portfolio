@@ -4,7 +4,9 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
@@ -40,6 +42,17 @@ def staff_required(view_func):
     return _wrapped
 
 
+def _safe_next(request, next_url):
+    """Faqat shu saytga tegishli ichki URL'ga ruxsat (open-redirect himoyasi)."""
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+    return "panel:dashboard"
+
+
 def panel_login(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect("panel:dashboard")
@@ -49,14 +62,23 @@ def panel_login(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
-        user = authenticate(request, username=username, password=password)
-        if user is not None and user.is_staff:
-            login(request, user)
-            return redirect(next_url or "panel:dashboard")
-        if user is not None and not user.is_staff:
-            error = "Bu hisobda panelga kirish huquqi yo'q."
-        else:
-            error = "Login yoki parol noto'g'ri."
+        try:
+            user = authenticate(request, username=username, password=password)
+        except PermissionDenied:
+            # django-axes ko'p xato urinishdan keyin bloklaganda
+            user = None
+            error = (
+                "Juda ko'p xato urinish. Xavfsizlik uchun kirish vaqtincha "
+                "bloklandi. Bir ozdan keyin qayta urinib ko'ring."
+            )
+        if error is None:
+            if user is not None and user.is_staff:
+                login(request, user)
+                return redirect(_safe_next(request, next_url))
+            if user is not None and not user.is_staff:
+                error = "Bu hisobda panelga kirish huquqi yo'q."
+            else:
+                error = "Login yoki parol noto'g'ri."
     return render(request, "panel/login.html", {"error": error, "next": next_url})
 
 

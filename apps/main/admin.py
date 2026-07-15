@@ -37,10 +37,10 @@ class SocialLinkAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "is_read", "created_at")
+    list_display = ("name", "phone", "email", "is_read", "created_at")
     list_filter = ("is_read", "created_at")
-    search_fields = ("name", "email", "message")
-    readonly_fields = ("name", "email", "message", "created_at", "updated_at")
+    search_fields = ("name", "phone", "email", "message")
+    readonly_fields = ("name", "phone", "email", "message", "created_at", "updated_at")
     list_editable = ("is_read",)
 
 

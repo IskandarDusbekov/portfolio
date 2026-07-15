@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Kirish bloklandi | Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #e2e8f0;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(220, 38, 38, 0.25), transparent 35%),
+                radial-gradient(circle at 85% 75%, rgba(14, 165, 233, 0.18), transparent 35%),
+                linear-gradient(160deg, #0b1224 0%, #0f1b38 55%, #0a1120 100%);
+        }
+        .card {
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 18px;
+            padding: 2.4rem 1.9rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(14px);
+        }
+        .icon {
+            width: 64px; height: 64px;
+            margin: 0 auto 1.2rem;
+            border-radius: 16px;
+            display: grid; place-items: center;
+            font-size: 1.7rem;
+            color: #fff;
+            background: linear-gradient(135deg, #dc2626, #f97316);
+        }
+        h1 { font-size: 1.35rem; color: #fff; margin-bottom: .6rem; }
+        p { color: #94a3b8; font-size: .92rem; line-height: 1.55; margin-bottom: .5rem; }
+        .foot { margin-top: 1.6rem; }
+        .foot a { color: #93c5fd; text-decoration: none; font-size: .86rem; }
+        .foot a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon"><i class="fas fa-shield-halved"></i></div>
+        <h1>Kirish vaqtincha bloklandi</h1>
+        <p>Juda ko'p muvaffaqiyatsiz kirish urinishi aniqlandi.</p>
+        <p>Xavfsizlik uchun hisob vaqtincha qulflandi. Iltimos, bir oz kuting va keyin qayta urinib ko'ring.</p>
+        <div class="foot"><a href="{% url 'index' %}"><i class="fas fa-arrow-left"></i> Saytga qaytish</a></div>
+    </div>
+</body>
+</html>

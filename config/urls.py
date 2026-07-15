@@ -3,8 +3,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from apps.main.views import robots_txt
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
+    path("robots.txt", robots_txt, name="robots_txt"),
     path("panel/", include("apps.panel.urls")),
     path("", include("apps.main.urls")),
     path("blog/", include("apps.blog.urls")),

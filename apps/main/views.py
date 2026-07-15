@@ -1,8 +1,9 @@
 import time
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -126,6 +127,17 @@ def index(request):
     return render(request, "index.html", context)
 
 
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        f"Disallow: /{settings.ADMIN_URL}",
+        "Disallow: /panel/",
+        "Disallow: /media/",
+        "",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
 @require_POST
 def submit_contact(request):
     contact_redirect_url = f"{reverse('index')}#contact"
@@ -136,11 +148,30 @@ def submit_contact(request):
 
     client_ip = request.META.get("REMOTE_ADDR", "unknown")
     cache_key = f"contact-last-submit:{client_ip}"
+    daily_key = f"contact-daily-count:{client_ip}"
+    DAILY_LIMIT = 5
+
+    def _is_ajax():
+        return request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+    # 1) Kunlik cheklov: IP boshiga sutkasiga DAILY_LIMIT ta xabar
+    daily_count = cache.get(daily_key, 0)
+    if daily_count >= DAILY_LIMIT:
+        payload = {
+            "ok": False,
+            "message": "Kunlik xabar yuborish limiti tugadi. Ertaga qayta urinib ko'ring.",
+        }
+        if _is_ajax():
+            return JsonResponse(payload, status=429)
+        messages.warning(request, payload["message"])
+        return redirect(contact_redirect_url)
+
+    # 2) Ketma-ket yuborishga qarshi: 30 soniyalik pauza
     last_submit_ts = cache.get(cache_key)
     now_ts = time.time()
     if last_submit_ts and (now_ts - last_submit_ts) < 30:
-        payload = {"ok": False, "message": "Please wait 30 seconds before sending another message."}
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        payload = {"ok": False, "message": "Iltimos, keyingi xabardan oldin 30 soniya kuting."}
+        if _is_ajax():
             return JsonResponse(payload, status=429)
         messages.warning(request, payload["message"])
         return redirect(contact_redirect_url)
@@ -149,6 +180,8 @@ def submit_contact(request):
     if form.is_valid():
         form.save()
         cache.set(cache_key, now_ts, timeout=30)
+        # Kunlik hisoblagichni oshiramiz (24 soatga saqlanadi)
+        cache.set(daily_key, daily_count + 1, timeout=60 * 60 * 24)
         success_message = "Xabaringiz yuborildi. Tez orada javob beraman."
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return JsonResponse({"ok": True, "message": success_message})

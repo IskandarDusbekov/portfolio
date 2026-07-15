@@ -29,6 +29,12 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-only-change-me"
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if host.strip()]
+
+# Django admin manzili — env orqali maxfiy qilish mumkin (masalan "boshqaruv-x7k/").
+# Botlar standart "/admin/" ni skan qiladi, shuning uchun productionda o'zgartiring.
+ADMIN_URL = os.getenv("DJANGO_ADMIN_URL", "admin/").strip().lstrip("/")
+if ADMIN_URL and not ADMIN_URL.endswith("/"):
+    ADMIN_URL += "/"
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
@@ -43,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "axes",
     "apps.main",
     "apps.blog",
     "apps.panel",
@@ -58,7 +65,29 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.main.middleware.VisitTrackingMiddleware",
+    # AxesMiddleware eng oxirida turishi shart
+    "axes.middleware.AxesMiddleware",
 ]
+
+# --- Brute-force himoyasi (django-axes) ---
+AUTHENTICATION_BACKENDS = [
+    # AxesStandaloneBackend eng birinchi bo'lishi shart
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# Necha marta xato urinishdan keyin blok qilinadi
+AXES_FAILURE_LIMIT = int(os.getenv("DJANGO_AXES_FAILURE_LIMIT", "5"))
+# Blok necha soatdan keyin ochiladi
+AXES_COOLOFF_TIME = int(os.getenv("DJANGO_AXES_COOLOFF_HOURS", "1"))
+# Blok username + IP kombinatsiyasi bo'yicha hisoblanadi
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+# Muvaffaqiyatli kirishda hisoblagich tozalanadi
+AXES_RESET_ON_SUCCESS = True
+# Bloklanganda ko'rsatiladigan chiroyli sahifa
+AXES_LOCKOUT_TEMPLATE = "panel/lockout.html"
+# Blok javobining HTTP status kodi
+AXES_HTTP_RESPONSE_CODE = 429
 
 ROOT_URLCONF = "config.urls"
 
