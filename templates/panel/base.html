@@ -200,22 +200,72 @@
         .btn-primary-soft { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; border: none; }
         .btn-primary-soft:hover { box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35); }
         .pager { display: flex; gap: .5rem; align-items: center; justify-content: center; margin-top: .9rem; }
-        @media (max-width: 1180px) {
-            .layout { grid-template-columns: 1fr; }
-            .sidebar { position: static; height: auto; }
-            .menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .topbar-left { display: flex; align-items: center; gap: .7rem; min-width: 0; }
+        .topbar-left strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* Hamburger tugma + drawer yopish tugmasi + overlay — mobil uchun */
+        .menu-toggle {
+            display: none;
+            align-items: center; justify-content: center;
+            width: 42px; height: 42px; flex: 0 0 auto;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: var(--card); color: var(--text);
+            cursor: pointer; font-size: 1.05rem;
+        }
+        .drawer-close {
+            display: none; margin-left: auto;
+            background: transparent; border: none; color: #cbd5e1;
+            font-size: 1.3rem; cursor: pointer; line-height: 1;
+        }
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(2, 6, 23, .55);
+            opacity: 0; visibility: hidden; transition: opacity .28s ease; z-index: 999;
+        }
+        .sidebar-overlay.show { opacity: 1; visibility: visible; }
+
+        @media (min-width: 1025px) and (max-width: 1180px) {
+            .layout { grid-template-columns: 240px 1fr; }
             .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .two-col { grid-template-columns: 1fr; }
         }
-        @media (max-width: 760px) {
-            .topbar { flex-direction: column; align-items: flex-start; gap: .6rem; }
-            .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .form-row-inline { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 560px) {
+
+        /* Tablet va telefon: sidebar off-canvas drawer bo'ladi */
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar {
+                position: fixed; top: 0; left: 0; bottom: 0;
+                width: 270px; max-width: 82vw; height: 100vh;
+                transform: translateX(-100%);
+                transition: transform .28s ease;
+                z-index: 1000; overflow-y: auto;
+                box-shadow: 6px 0 40px rgba(0, 0, 0, .4);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .menu-toggle { display: inline-flex; }
+            .drawer-close { display: inline-flex; }
+            .main { padding: .85rem; }
+            .topbar {
+                position: sticky; top: .5rem; z-index: 500;
+                margin-bottom: .9rem;
+            }
             .menu { grid-template-columns: 1fr; }
-            .card-grid { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .two-col { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .card-grid { grid-template-columns: 1fr 1fr; }
+            .topbar { padding: .6rem .7rem; }
+            .topbar strong { font-size: .92rem; }
+            .user-chip .username-text { display: none; }
+            .logout-btn .logout-text { display: none; }
+            .form-row-inline { grid-template-columns: 1fr; }
             .search-form { flex-wrap: wrap; }
+            .quick-actions { gap: .4rem; }
+            .quick-actions .btn { flex: 1 1 calc(50% - .4rem); justify-content: center; }
+        }
+
+        @media (max-width: 380px) {
+            .card-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -226,6 +276,7 @@
         <div class="brand">
             <i class="fas fa-gauge-high"></i> Control Panel
             <span class="brand-badge">staff</span>
+            <button class="drawer-close" id="drawerClose" type="button" aria-label="Menyuni yopish"><i class="fas fa-xmark"></i></button>
         </div>
 
         <div class="menu-section">
@@ -268,15 +319,18 @@
 
     <main class="main">
         <div class="topbar">
-            <strong>{{ page_title|default:"Panel" }}</strong>
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle" type="button" aria-label="Menyuni ochish"><i class="fas fa-bars"></i></button>
+                <strong>{{ page_title|default:"Panel" }}</strong>
+            </div>
             <div class="topbar-right">
                 <div class="user-chip">
                     <span class="avatar">{{ request.user.username|slice:":1"|upper }}</span>
-                    {{ request.user.get_username }}
+                    <span class="username-text">{{ request.user.get_username }}</span>
                 </div>
                 <form method="post" action="{% url 'panel:logout' %}" style="margin:0;">
                     {% csrf_token %}
-                    <button type="submit" class="btn logout-btn"><i class="fas fa-right-from-bracket"></i> Chiqish</button>
+                    <button type="submit" class="btn logout-btn"><i class="fas fa-right-from-bracket"></i> <span class="logout-text">Chiqish</span></button>
                 </form>
             </div>
         </div>
@@ -292,5 +346,45 @@
         {% block panel_content %}{% endblock %}
     </main>
 </div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<script>
+    (function () {
+        var toggle = document.getElementById('menuToggle');
+        var closeBtn = document.getElementById('drawerClose');
+        var sidebar = document.querySelector('.sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar || !overlay) return;
+
+        function openDrawer() { sidebar.classList.add('open'); overlay.classList.add('show'); }
+        function closeDrawer() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                sidebar.classList.contains('open') ? closeDrawer() : openDrawer();
+            });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+        overlay.addEventListener('click', closeDrawer);
+
+        // Menyu havolasini bosganda drawer yopilsin (mobil)
+        sidebar.querySelectorAll('.menu a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth <= 1024) closeDrawer();
+            });
+        });
+
+        // Esc bilan yopish
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeDrawer();
+        });
+
+        // Desktopga o'tganda drawer holatini tozalash
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 1024) closeDrawer();
+        });
+    })();
+</script>
 </body>
 </html>
