@@ -14,6 +14,22 @@ VIEW_FLUSH_THRESHOLD = 10
 VIEW_FLUSH_INTERVAL_SECONDS = 300
 VIEW_BUFFER_TTL_SECONDS = 60 * 60 * 24
 
+# Rasmi yo'q yoki tashqi rasm ochilmagan postlar uchun lokal zaxira rasm.
+# Tashqi tarmoqqa bog'liq emas (data-URI SVG), barcha tirnoqlar %22 bilan
+# kodlangani uchun HTML atributlari ichida xavfsiz ishlaydi.
+BLOG_PLACEHOLDER = (
+    "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20"
+    "width%3D%22900%22%20height%3D%22550%22%3E%3Cdefs%3E%3ClinearGradient%20id"
+    "%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E"
+    "%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563eb%22/%3E%3Cstop%20"
+    "offset%3D%221%22%20stop-color%3D%22%230ea5e9%22/%3E%3C/linearGradient%3E"
+    "%3C/defs%3E%3Crect%20width%3D%22900%22%20height%3D%22550%22%20fill%3D%22"
+    "url%28%23g%29%22/%3E%3Ctext%20x%3D%22450%22%20y%3D%22290%22%20fill%3D%22"
+    "%23ffffff%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-"
+    "size%3D%2252%22%20font-weight%3D%22bold%22%20text-anchor%3D%22middle%22%3E"
+    "BackendDev%3C/text%3E%3C/svg%3E"
+)
+
 
 DEFAULT_BLOG_POSTS = [
     {
@@ -86,6 +102,7 @@ def blog(request):
         "page_obj": page_obj,
         "is_paginated": page_obj.has_other_pages(),
         "current_lang": current_lang,
+        "blog_placeholder": BLOG_PLACEHOLDER,
     }
     return render(request, "blog.html", context)
 
@@ -159,6 +176,7 @@ def view_post(request, slug):
             "next_post": next_post,
             "displayed_views_count": displayed_views_count,
             "current_lang": current_lang,
+            "blog_placeholder": BLOG_PLACEHOLDER,
         }
         return render(request, "view_post.html", context)
 

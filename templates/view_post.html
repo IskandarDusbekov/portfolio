@@ -40,7 +40,7 @@
 
 <div class="post-wrap fade-up">
     {% if post %}
-        <img class="post-cover" src="{{ post.cover_src|default:'https://picsum.photos/seed/backend/1000/500' }}" alt="{{ post.title }}" />
+        <img class="post-cover" src="{{ post.cover_src|default:blog_placeholder }}" alt="{{ post.title }}" onerror="this.onerror=null;this.src='{{ blog_placeholder }}';" />
         <div class="post-body">
             <a class="back-link" href="{% url 'blog' %}"><i class="fas fa-arrow-left"></i> {{ t.blog_back }}</a>
             <h1>{{ post.display_title }}</h1>

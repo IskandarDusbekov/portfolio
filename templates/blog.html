@@ -72,7 +72,7 @@
 {% if featured_post %}
 <div class="featured-post fade-up">
     <div class="featured-grid">
-        <img class="featured-image" src="{{ featured_post.cover_src|default:'https://picsum.photos/seed/backend/900/550' }}" alt="{{ featured_post.title }}" />
+        <img class="featured-image" src="{{ featured_post.cover_src|default:blog_placeholder }}" alt="{{ featured_post.title }}" onerror="this.onerror=null;this.src='{{ blog_placeholder }}';" />
         <div class="featured-content">
             <span class="featured-badge"><i class="fas fa-star"></i> {{ t.blog_featured }}</span>
             <h2>{{ featured_post.display_title }}</h2>
@@ -94,7 +94,7 @@
 <div class="blog-grid">
     {% for post in page_obj.object_list %}
         <a class="blog-card" href="{% url 'view_post' post.slug %}">
-            <img class="blog-image" src="{{ post.cover_src|default:'https://picsum.photos/seed/post/900/550' }}" alt="{{ post.title }}" />
+            <img class="blog-image" src="{{ post.cover_src|default:blog_placeholder }}" alt="{{ post.title }}" onerror="this.onerror=null;this.src='{{ blog_placeholder }}';" />
             <div class="blog-content">
                 <span class="blog-category">{{ post.category.name }}</span>
                 <h3>{{ post.display_title }}</h3>
