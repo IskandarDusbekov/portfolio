@@ -96,7 +96,8 @@ def _visit_analytics():
     today = timezone.localdate()
     window_start = today - timedelta(days=13)
 
-    visits = PageVisit.objects.filter(is_authenticated=False)
+    # Botlar va login qilgan adminning o'zi statistikaga kirmaydi
+    visits = PageVisit.objects.filter(is_authenticated=False, is_bot=False)
 
     daily_counts = {
         row["day"]: row["count"]
@@ -184,7 +185,7 @@ def dashboard(request):
 
 @staff_required
 def analytics(request):
-    visits = PageVisit.objects.filter(is_authenticated=False).order_by("-created_at")
+    visits = PageVisit.objects.filter(is_authenticated=False, is_bot=False).order_by("-created_at")
     paginator = Paginator(visits, 40)
     page_obj = paginator.get_page(request.GET.get("page"))
 

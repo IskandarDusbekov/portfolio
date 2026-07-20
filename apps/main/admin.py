@@ -8,6 +8,7 @@ from .models import (
     Project,
     Skill,
     SocialLink,
+    VisitorSession,
 )
 
 
@@ -70,3 +71,17 @@ class PageVisitAdmin(admin.ModelAdmin):
 class BlockedIPAdmin(admin.ModelAdmin):
     list_display = ("ip_address", "reason", "created_at")
     search_fields = ("ip_address", "reason")
+
+
+@admin.register(VisitorSession)
+class VisitorSessionAdmin(admin.ModelAdmin):
+    list_display = (
+        "ip_address", "browser", "os", "device_type",
+        "referer_source", "page_count", "is_bot", "bot_name", "last_activity",
+    )
+    list_filter = ("is_bot", "device_type", "browser", "os", "referer_source", "started_at")
+    search_fields = ("ip_address", "session_key", "user_agent", "bot_name", "landing_page")
+    readonly_fields = [f.name for f in VisitorSession._meta.fields]
+
+    def has_add_permission(self, request):
+        return False

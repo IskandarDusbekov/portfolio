@@ -3,6 +3,8 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
 
+from .tracking.useragent import DEVICE_CHOICES
+
 
 BLOCKED_IPS_CACHE_KEY = "blocked_ips_set"
 
@@ -129,21 +131,111 @@ class ContactMessage(TimestampedModel):
         return f"{self.name} <{self.phone}>"
 
 
+class VisitorSession(models.Model):
+    """Bitta tashrifchi sessiyasi - qurilma, manba va sayt bo'ylab yo'li.
+
+    Har bir sahifa ko'rishi (PageVisit) shu sessiyaga bog'lanadi.
+    """
+
+    session_key = models.CharField(max_length=40, unique=True, db_index=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True, db_index=True)
+    user_agent = models.TextField(blank=True)
+
+    # User-Agent tahlili
+    browser = models.CharField(max_length=60, blank=True, db_index=True)
+    browser_version = models.CharField(max_length=30, blank=True)
+    os = models.CharField(max_length=60, blank=True, db_index=True)
+    os_version = models.CharField(max_length=30, blank=True)
+    device_type = models.CharField(
+        max_length=20, blank=True, db_index=True, choices=DEVICE_CHOICES
+    )
+    device_model = models.CharField(max_length=80, blank=True)
+
+    # Klient ma'lumotlari
+    language = models.CharField(max_length=20, blank=True)
+    timezone = models.CharField(max_length=60, blank=True)
+
+    # Bot aniqlash
+    is_bot = models.BooleanField(default=False, db_index=True)
+    bot_name = models.CharField(max_length=60, blank=True)
+
+    # Trafik manbasi
+    referer = models.TextField(blank=True)
+    referer_source = models.CharField(max_length=40, blank=True, db_index=True)
+
+    # Sayt bo'ylab yo'l
+    landing_page = models.CharField(max_length=255, blank=True)
+    exit_page = models.CharField(max_length=255, blank=True)
+    page_count = models.PositiveIntegerField(default=0)
+
+    started_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_activity = models.DateTimeField(auto_now=True, db_index=True)
+
+    # Geo ma'lumotlari - keyingi bosqichda GeoIP bilan to'ldiriladi
+    country = models.CharField(max_length=60, blank=True, db_index=True)
+    country_code = models.CharField(max_length=2, blank=True)
+    region = models.CharField(max_length=80, blank=True)
+    city = models.CharField(max_length=80, blank=True)
+    isp = models.CharField(max_length=120, blank=True)
+    asn = models.CharField(max_length=40, blank=True)
+
+    class Meta:
+        ordering = ["-last_activity"]
+        indexes = [
+            models.Index(fields=["-last_activity", "is_bot"]),
+            models.Index(fields=["started_at", "is_bot"]),
+        ]
+
+    def __str__(self):
+        who = self.bot_name or self.browser or "Unknown"
+        return f"{who} @ {self.ip_address or '-'}"
+
+    @property
+    def duration_seconds(self):
+        """Sessiya davomiyligi (soniyada)."""
+        if not self.started_at or not self.last_activity:
+            return 0
+        return max(0, int((self.last_activity - self.started_at).total_seconds()))
+
+    @property
+    def duration_label(self):
+        """Davomiylikni o'qiladigan ko'rinishda qaytaradi."""
+        total = self.duration_seconds
+        if total < 60:
+            return f"{total}s"
+        minutes, seconds = divmod(total, 60)
+        if minutes < 60:
+            return f"{minutes}m {seconds}s"
+        hours, minutes = divmod(minutes, 60)
+        return f"{hours}h {minutes}m"
+
+
 class PageVisit(models.Model):
     """A single page view by a site visitor, used for the panel analytics."""
 
+    session = models.ForeignKey(
+        VisitorSession,
+        on_delete=models.CASCADE,
+        related_name="visits",
+        null=True,
+        blank=True,
+    )
     path = models.CharField(max_length=255, db_index=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     session_key = models.CharField(max_length=40, blank=True, db_index=True)
     user_agent = models.CharField(max_length=300, blank=True)
     referrer = models.CharField(max_length=300, blank=True)
     is_authenticated = models.BooleanField(default=False)
+    status_code = models.PositiveSmallIntegerField(default=200, db_index=True)
+    is_bot = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
         indexes = [
             models.Index(fields=["created_at", "session_key"]),
+            models.Index(fields=["created_at", "is_bot"]),
+            models.Index(fields=["status_code", "created_at"]),
         ]
 
     def __str__(self):
